@@ -1,0 +1,60 @@
+include: 'snake_based_paths'
+
+#start 
+from signal import signal, SIGPIPE, SIG_DFL
+signal(SIGPIPE, SIG_DFL)
+import os
+
+rule all:
+    input:
+        expand(user_root+"ragout/a5_scaffolds.fasta"),
+        expand(user_root+"busco/scaffold/run_a5_ragout/short_summary_a5_ragout.txt"),
+        expand(user_root+"quast/scaffold/report.pdf"),
+        expand(user_root+"MUMMer/scaffold/out.delta")
+        
+rule ragout:
+    input:
+        user_root+"ragout.config"
+    output:
+        user_root+"ragout/a5_scaffolds.fasta"
+    shell:
+        "{NON_CONDA_APP_BIN}Ragout/ragout.py {input} --outdir "+user_root+"ragout"+refine+" -t 15;"
+        
+#quast
+rule quast:
+    input:
+        user_root+"a5_miseq/user.contigs.fasta",
+        user_root+"ragout/a5_scaffolds.fasta"
+    output:
+        user_root+"quast/scaffold/report.pdf"
+    shell:
+        "source activate ngs_p2;"
+        "quast -o "+user_root+"quast/scaffold -R "+user_root+"reference/*.fa -m "+ref_m_value+" --contig-thresholds "+ref_contig_thresholds+" -t 15 {input} 1> "+user_root+"/quast/quast.stdout.log 2>"+user_root+"/quast/quast.stderr.log;"
+        "source activate ngs"
+#busco
+rule a5busco:
+    input:
+        user_root+"ragout/a5_scaffolds.fasta"
+    params:
+        busco_ref=BUSCO_DB+"bacteria_odb9"
+    output:
+        user_root+"busco/scaffold/run_a5_ragout/short_summary_a5_ragout.txt"
+    shell:
+        "cd "+user_root+"busco/scaffold;"
+        "busco -i {input} -l {params.busco_ref} -o a5_ragout -e "+ref_e_value+" -sp "+ref_busco_species+" -m genome -c 4 -f  1> busco.stdout.log 2> busco.stderr.log;"
+        "busco_plot -wd run_a5_ragout 1> busco_plot.stdout.log 2>busco_plot.stderr.log;"
+        
+#mummer
+rule mur:
+    input:
+        user_root+"reference/reference.fa",
+        user_root+"ragout/a5_scaffolds.fasta"
+    output:
+        user_root+"MUMMer/scaffold/out.delta"
+    shell:
+        "cd "+user_root+";"
+        "mkdir -p MUMMer/scaffold;"
+        "cd MUMMer/scaffold;"
+        "nucmer {input};"
+        "mummerplot -f -t png out.delta;"
+

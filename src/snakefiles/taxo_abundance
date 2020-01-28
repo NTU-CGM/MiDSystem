@@ -1,0 +1,23 @@
+include: 'snake_based_paths'
+
+uid=user_root.split('/')[-2]
+#start taxonomic abundance
+rule taxo:
+    input:
+        user_root+"trimmomatic/R1.trimmed.fastq",
+        user_root+"trimmomatic/R2.trimmed.fastq"
+    output:
+        user_root+"metaphlan/merged_abundance_table.txt",
+        user_root+"metaphlan/user_taxo.png"
+    shell:
+        "source activate ngs_p2;"
+        "cd "+user_root+"metaphlan;"
+        "metaphlan2.py "+user_root+"trimmomatic/R1.trimmed.fastq,"+user_root+"trimmomatic/R2.trimmed.fastq --bowtie2out "+uid+".bowtie2.bz2 --nproc 15 --input_type fastq > "+uid+"_profiled.txt;"
+        "merge_metaphlan_tables.py "+uid+"_profiled.txt > merged_abundance_table.txt;"
+        "grep -E '(s__)|(^ID)' merged_abundance_table.txt | grep -v 't__' | sed 's/^.*s__//g' > merged_abundance_table_species.txt;"
+        "{NON_CONDA_APP_BIN}GraphlAn/graphlan/export2graphlan/export2graphlan.py --skip_rows 1,2 -i merged_abundance_table.txt --tree merged_abundance.tree.txt --annotation merged_abundance.annot.txt --most_abundant 100 --abundance_threshold 1 --least_biomarkers 10 --annotations 5,6 --external_annotations 7 --min_clade_size 1;"
+        "{NON_CONDA_APP_BIN}GraphlAn/graphlan/graphlan_annotate.py --annot merged_abundance.annot.txt merged_abundance.tree.txt merged_abundance.xml;"
+        "{NON_CONDA_APP_BIN}GraphlAn/graphlan/graphlan.py --dpi 300 merged_abundance.xml user_taxo.png --external_legends --size=10;"+additional_commands
+        
+        
+

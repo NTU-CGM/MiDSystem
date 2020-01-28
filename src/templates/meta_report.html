@@ -1,0 +1,812 @@
+<!DOCTYPE html>
+<html>
+<title>Report</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+{% load static %}
+<link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Raleway">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+<link href="https://cdn.datatables.net/1.10.16/css/jquery.dataTables.min.css" rel="stylesheet" type="text/css" />
+<style>
+html,body,h1,h2,h3,h4,h5 {font-family:  "Helvetica Neue",Helvetica,Arial,sans-serif;}
+body {
+    background-color: #FCFAF2; 
+    color:#317682;
+}
+
+.imgB1 {
+  z-index: 3;
+}
+
+tr.group,
+tr.group:hover {
+    background-color: #ddd !important;
+}
+
+#myBtn {
+  display: none;
+  position: fixed;
+  bottom: 20px;
+  right: 30px;
+  z-index: 99;
+  font-size: 18px;
+  border: none;
+  outline: none;
+  background-color: red;
+  color: white;
+  cursor: pointer;
+  padding: 15px;
+  border-radius: 4px;
+}
+
+#myBtn:hover {
+  background-color: #555;
+}
+</style>
+<style>
+ul, li {
+	margin: 0;
+	padding: 0;
+	list-style: none;
+}
+.abgne_tab {
+	clear: left;
+	width: 100%;
+	margin: 10px 0;
+}
+ul.tabs {
+	width: 100%;
+	height: 32px;
+	border-bottom: 2px solid #999;
+	border-left: 1px solid #999;
+}
+ul.tabs li {
+	float: left;
+	height: 31px;
+	line-height: 31px;
+	overflow: hidden;
+	position: relative;
+	margin-bottom: -1px;	/* 讓 li 往下移來遮住 ul 的部份 border-bottom */
+	border: 1px solid #999;
+	border-left: none;
+	background: #e1e1e1;
+}
+ul.tabs li a {
+	display: block;
+	padding: 0 20px;
+	color: #000;
+	border: 1px solid #fff;
+	text-decoration: none;
+}
+ul.tabs li a:hover {
+	background: #ccc;
+}
+ul.tabs li.active  {
+	background: #fff;
+	border-bottom: 1px solid#fff;
+}
+ul.tabs li.active a:hover {
+	background: #fff;
+}
+div.tab_container {
+	clear: left;
+	width: 100%;
+	//border: 1px solid #999;
+	border-top: none;
+	background: #fff;
+}
+div.tab_container .tab_content {
+	padding: 2px;
+}
+div.tab_container .tab_content h2 {
+	margin: 0 0 20px;
+}
+</style>
+
+<!-- Top container -->
+<div class="w3-bar w3-top w3-large" style="z-index:4;background-color:#ecd9e5">
+  <button class="w3-bar-item w3-button w3-hide-large w3-hover-none w3-hover-text-light-grey" onclick="w3_open();"><i class="fa fa-bars"></i>  Menu</button>
+  <span class="w3-bar-item w3-left">Metagenomics Pipeline</span>
+  <span class="w3-bar-item w3-right"></span>
+</div>
+
+<!-- Sidebar/menu -->
+{% if success %}
+    <nav class="w3-sidebar w3-collapse w3-white w3-animate-left" style="z-index:3;width:250px;" id="mySidebar">
+      <div class="w3-container">
+        <h5>Dashboard</h5>
+      </div>
+      <div class="w3-bar-block" style="font-size:14px">
+        <a href="#" class="w3-bar-item w3-button w3-padding-16 w3-hide-large w3-dark-grey w3-hover-black" onclick="w3_close()" title="close menu"><i class="fa fa-remove fa-fw"></i>  Close Menu</a>
+        <a href="#" class="w3-bar-item w3-button w3-padding" onclick="loading(this.name)" name="summary_result"><img src="{% static 'vertical-timeline/img/glyphicons-30-notes-2.png' %}" height="14" width="15">  Overview</a>
+        <a href="#" class="w3-bar-item w3-button w3-padding" onclick="loading(this.name)" name="qc_result"><img src="{% static 'vertical-timeline/img/glyphicons-28-search.png' %}" height="14" width="15">  Quality Control</a>
+        <a href="#" class="w3-bar-item w3-button w3-padding" onclick="loading(this.name)" name="a5_result"><img src="{% static 'vertical-timeline/img/glyphicons-111-align-left.png' %}" height="14" width="15"> Assembly</a>
+        <a href="#" class="w3-bar-item w3-button w3-padding" onclick="loading(this.name)" name="taxo_result"><img src="{% static 'vertical-timeline/img/glyphicons-320-sort.png' %}" height="14" width="15"> Taxonomic Abundance</a>        
+        <a href="#" class="w3-bar-item w3-button w3-padding" onclick="loading(this.name)" name="pred_result"><img src="{% static 'vertical-timeline/img/glyphicons-489-multiple-displays.png' %}" height="14" width="15">  Gene Predict/Cluster</a>
+        <a href="#" class="w3-bar-item w3-button w3-padding" onclick="loading(this.name)" name="function_result"><img src="{% static 'vertical-timeline/img/glyphicons-530-list-alt.png' %}" height="14" width="15">  Functional Annotation and Abundance</a>
+        <a href="#" class="w3-bar-item w3-button w3-padding" onclick="loading(this.name)" name="domain_result"><img src="{% static 'vertical-timeline/img/glyphicons-186-screenshot.png' %}" height="14" width="15">  Domain Mapping</a>       
+      </div>
+    </nav>
+
+
+    <!-- Overlay effect when opening sidebar on small screens -->
+    <div class="w3-overlay w3-hide-large w3-animate-opacity" onclick="w3_close()" style="cursor:pointer" title="close side menu" id="myOverlay"></div>
+    <!-- !PAGE CONTENT! -->
+    <div class="pipeline_result" id="summary_result">
+        <div class="w3-main" style="margin-left:260px;margin-top:43px;">
+          <header class="w3-container" style="padding-top:22px">
+            <h4><b><img src="{% static 'vertical-timeline/img/glyphicons-30-notes-2.png' %}"> Overview</b></h4>
+          </header>
+          
+          <div class="w3-row-padding w3-margin-bottom">
+             <div class="w3-panel w3-border" style="width:90%;">
+               <p>Congradulations! Your job has been completed successfully!</p>
+               <p>The followings are details about your job, and the download link to all the logs/results.</p>
+               <p>Please click the left navigation panel to show results of each step.</p>
+             </div>
+          </div>
+          <div class="w3-row-padding w3-margin-bottom" style="float:center">
+            <h5>Information about your job:</h5>
+            <table class="w3-table w3-striped w3-white" style="width:90%;">
+                <tr>
+                    <td width="30%">Job ID</td>
+                    <td>{{task_id}}</td>
+                </tr>
+                <tr>
+                    <td>Submission time</td>
+                    <td>{{overview.submit_time}}</td>
+                </tr>
+                <tr>
+                    <td>Start time</td>
+                    <td>{{overview.start_time}}</td>
+                </tr>
+                <tr>
+                    <td>End time</td>
+                    <td>{{overview.end_time}}</td>
+                </tr>
+                <tr>
+                    <td>Download Link</td>
+                    <td>
+                        <a class="w3-button w3-round-large w3-border w3-tiny" style="background-color:#d6efeb;font-size:16px" href="{% static ''%}{{task_id}}/myjob.tar.gz" role="button">
+                        Download  <i class="fa fa-arrow-down"></i>
+                        </a>
+                    </td>
+                </tr>
+            </table>
+          </div>
+
+        </div>
+    </div>
+    <!--qc result-->
+    <div class="pipeline_result" id="qc_result">
+        <div class="w3-main" style="margin-left:260px;margin-top:43px;">
+          <!-- Header -->
+          <header class="w3-container" style="padding-top:22px">
+            <h4><b><img src="{% static 'vertical-timeline/img/glyphicons-28-search.png' %}"> Quality Control Result</b></h4>
+          </header>
+
+          <div class="w3-row-padding w3-margin-bottom">
+             <div class="w3-panel w3-border" style="width:90%;">
+               <p>Quality control description here</p>
+             </div>
+          </div>
+          <div class="w3-row-padding w3-margin-bottom">
+            <h5>Summary</h5>
+            <table class="w3-table w3-card-4 w3-bordered w3-bordered w3-border w3-hoverable w3-white">
+              <tr>
+                <td width="60%"><a href="{% static ''%}{{task_id}}/multiqc/multiqc_report.html" target="_blank">Before Trimming</td>
+                <!--<td width="40%">Link</a></td>-->
+              </tr>
+              <tr>
+                <td width="60%"><a href="{% static ''%}{{task_id}}/trimmomatic/multiqc/multiqc_report.html" target="_blank">After Trimming</td>
+                <!--<td width="40%">Link</a></td>-->
+              </tr>
+            </table><br>
+          </div>
+          <hr>
+          <div class="w3-panel">
+            <div class="w3-row-padding" style="margin:0 -16px">
+                <h5>QC report links: R1</h5>
+                <table class="w3-table w3-card-4 w3-bordered w3-white">
+                  <tr>
+                    <td><img src="{% static 'vertical-timeline/img/glyphicons-111-align-left.png' %}"></td>
+                    <td>FastQC before trimming</td>
+                    <td><a href="{% static ''%}{{task_id}}/fastqc/R1_fastqc.html" target="_blank">Link</a></td>
+                  </tr>
+                  <tr>
+                    <td><img src="{% static 'vertical-timeline/img/glyphicons-599-scissors-alt.png' %}"></td>
+                    <td>FastQC after trimming</td>
+                    <td><a href="{% static ''%}{{task_id}}/trimmomatic/fastqc/R1.trimmed_fastqc.html" target="_blank">Link</a></td>
+                  </tr>
+                  
+                </table>
+                <br>
+                <h5>QC report links: R2</h5>
+                <table class="w3-table w3-card-4 w3-bordered w3-white">
+                  <tr>
+                    <td><img src="{% static 'vertical-timeline/img/glyphicons-111-align-left.png' %}"></td>
+                    <td>FastQC before trimming</td>
+                    <td><a href="{% static ''%}{{task_id}}/fastqc/R2_fastqc.html" target="_blank">Link</a></td>
+                  </tr>
+                  <tr>
+                    <td><img src="{% static 'vertical-timeline/img/glyphicons-599-scissors-alt.png' %}"></td>
+                    <td>FastQC after trimming</td>
+                    <td><a href="{% static ''%}{{task_id}}/trimmomatic/fastqc/R2.trimmed_fastqc.html" target="_blank">Link</a></td>
+                  </tr>
+                  
+                </table>
+                <br>
+                <hr>
+                <h5>Trimmomatic</h5>
+                <div id="piechart_3d" style="width: 900px; height: 500px;">
+                    <!--<img src="/w3images/region.jpg" style="width:100%" alt="Google Regional Map">-->
+                </div>   
+            </div>
+          </div>
+          <hr>
+          
+        </div>
+          <!-- End qc page content --> 
+    </div>
+    <!--a5 result-->
+    <div class="pipeline_result" id="a5_result">
+        <div class="w3-main" style="margin-left:260px;margin-top:43px;">
+              <!-- Header -->
+              <header class="w3-container" style="padding-top:22px">
+                <h4><b><img src="{% static 'vertical-timeline/img/glyphicons-111-align-left.png' %}"> <i>De Novo</i> Assembly Result</b></h4>
+              </header>
+
+              <div class="w3-panel w3-border" style="width:90%;">
+                <p>De novo description here</p>
+              </div>
+              
+              <div class="w3-row-padding w3-margin-bottom">
+                 <h5>A5-miseq Assemblied Contigs:&nbsp;&nbsp;
+                 <a class="w3-button w3-round-large w3-border" style="background-color:#d6efeb;font-size:16px" href="{% static ''%}{{task_id}}/a5_miseq/user.final.scaffolds.fasta" role="button">
+                    Download  <i class="fa fa-arrow-down"></i>
+                 </a>
+                 </h5>
+                 
+              </div>
+            <!--
+              <div class="w3-row-padding w3-margin-bottom" style="float:center">
+                <h5>A5-miseq Statistics:</h5>
+                <table class="w3-table w3-striped w3-white" style="width:80%;">
+                    <tr>
+                        <td width="50%">Download Report (csv)</td>
+                        <td>
+                            <a class="w3-button w3-round-large w3-border w3-tiny" style="background-color:#d6efeb;font-size:16px" href="{% static ''%}{{task_id}}/a5_miseq/user.assembly_stats.csv" role="button">
+                            Download  <i class="fa fa-arrow-down"></i>
+                            </a>
+                        </td>
+                    </tr>
+                  {% for col,val in a5_result_pair %}
+                      <tr>
+                        <td width="50%">{{col}}</td>
+                        <td>{{val}}</td>
+                      </tr>
+                  {% endfor %}
+                                    
+                </table>
+              </div>
+            -->
+              <hr>    
+        </div>
+    </div>
+    <!--taxo result-->
+    <div class="pipeline_result" id="taxo_result">
+        <div class="w3-main" style="margin-left:260px;margin-top:43px;">
+              <!-- Header -->
+              <header class="w3-container" style="padding-top:22px">
+                <h4><b><img src="{% static 'vertical-timeline/img/glyphicons-320-sort.png' %}"> Taxonomic Abundance</b></h4>
+              </header>
+
+              <div class="w3-panel w3-border" style="width:90%;">
+                <p>Taxo description here</p>
+              </div>
+              
+              <div class="w3-row-padding w3-margin-bottom">
+                <p>Click following link to download the profile files, species abundance table, and the cladograms in the formate that you selected. </p>
+                <h5>MetaPhlAn2 (GraPhlAn) Results:&nbsp;&nbsp;
+                <a class="w3-button w3-round-large w3-border" style="background-color:#d6efeb;font-size:16px" href="{% static ''%}{{task_id}}/taxonomic.tar.gz" role="button">
+                    Download  <i class="fa fa-arrow-down"></i>
+                </a>
+                </h5>
+              </div>
+              
+              <div class="w3-container">
+                <p>The plot is included in the result file above.</p>
+                <img src="{{STATIC_URL}}{{task_id}}/metaphlan/user_taxo.png" style="width: 800px; height: 80%;">
+                <img class="w3-half" src="{{STATIC_URL}}{{task_id}}/metaphlan/user_taxo_annot.png" style="width: 400px; height: 290px;">
+                <img class="w3-half" src="{{STATIC_URL}}{{task_id}}/metaphlan/user_taxo_legend.png" style="width: 400px; height: 290px;">
+              <br>
+              </div>
+              
+            <h5>Species Table:</h5>
+            <div style="width: 90%">
+                <table id="species_table" class="display" >
+                    <thead>
+                    <tr>
+                        <th style="width: 65%">Species</th>
+                        <th>Abundance</th>                        
+                    </tr>
+                    </thead>
+                    <tbody>
+                        {% for name,abund in taxo_output %}
+                          <tr>
+                            <td>{{name}}</td>
+                            <td>{{abund}}</td>
+                          </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            <br />
+            <br />
+            <hr>
+            <div id="myDiv" style="width: 90%"></div>  
+              
+        </div>
+    </div>
+    
+    <!--Gene Prediction and Clustering-->
+    <div class="pipeline_result" id="pred_result">
+        <div class="w3-main" style="margin-left:260px;margin-top:43px;">
+              <!-- Header -->
+              <header class="w3-container" style="padding-top:22px">
+                <h4><b><img src="{% static 'vertical-timeline/img/glyphicons-489-multiple-displays.png' %}"> Gene Prediction and Clustering</b></h4>
+              </header>
+
+              <div class="w3-panel w3-border" style="width:90%;">
+                <p>Predition description here</p>
+              </div>
+              <div class="w3-row-padding w3-margin-bottom">
+                <h5>Gene Prediction (cDNA):&nbsp;&nbsp;&nbsp;&nbsp;
+                <a class="w3-button w3-round-large w3-border" style="background-color:#d6efeb;font-size:16px" href="{% static ''%}{{task_id}}/metagenemark/user.nul.fasta" role="button">
+                    Download  <i class="fa fa-arrow-down"></i>
+                </a>
+                </h5>
+                <h5>Gene Prediction (protein):&nbsp;&nbsp;
+                <a class="w3-button w3-round-large w3-border" style="background-color:#d6efeb;font-size:16px" href="{% static ''%}{{task_id}}/metagenemark/user.protein.fasta" role="button">
+                    Download  <i class="fa fa-arrow-down"></i>
+                </a>
+                </h5>
+                <h5>GFF3 file:&nbsp;&nbsp;
+                <a class="w3-button w3-round-large w3-border" style="background-color:#d6efeb;font-size:16px" href="{% static ''%}{{task_id}}/metagenemark/user.gff" role="button">
+                    Download  <i class="fa fa-arrow-down"></i>
+                </a>
+                </h5>
+                <br>
+                <table class="w3-table w3-striped w3-white" style="width:90%;">
+                    {% for col,val in gene_pred_table %}
+                      <tr>
+                        <td width="50%">{{col}}</td>
+                        <td>{{val}}</td>
+                      </tr>
+                    {% endfor %}
+                     
+                </table>
+                <br />
+                <br />
+                <hr>
+                <h5>Abundance Table</h5>
+                <p>Below is the gene catalog with top 200 TPM abundance.</p>
+                <p>Download whole table here:&nbsp;&nbsp;<a class="w3-button w3-round-large w3-border" style="background-color:#d6efeb;font-size:16px" href="{% static ''%}{{task_id}}/cdhit/gene_catalog_abundance.csv" role="button">
+                    Download  <i class="fa fa-arrow-down"></i>
+                </a></p>
+                <div style="width: 90%">
+                    <table id="abund_table" class="display" >
+                        <thead>
+                        <tr>
+                            <th>Catalog</th>
+                            <th>Represent Gene</th>
+                            <th>Gene Member Number</th>
+                            <th>TPM Abundance</th>                        
+                        </tr>
+                        </thead>
+                        <tbody>
+                            {% for c,r,g,a in abundance_table %}
+                              <tr>
+                                <td>{{c}}</td>
+                                <td>{{r}}</td>
+                                <td>{{g}}</td>
+                                <td>{{a}}</td>
+                              </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+              </div>
+   
+        </div>
+    </div>
+    <!--Funcional Annotation and Clustering-->
+    <div class="pipeline_result" id="function_result">
+        <div class="w3-main" style="margin-left:260px;margin-top:43px;">
+              <!-- Header -->
+              <header class="w3-container" style="padding-top:22px">
+                <h4><b><img src="{% static 'vertical-timeline/img/glyphicons-530-list-alt.png' %}"> Funcional Annotation and Abundance</b></h4>
+              </header>
+
+              <div class="w3-panel w3-border" style="width:90%;">
+                <p>Funcional description here</p>
+              </div>
+              <p>The following download link contains:</p> 
+              <p>1. EggNOG mapper (diamond) result with gene catalog TPM abundance</p>
+              <p>2. Gene catalogs, go terms and descriptions</p>
+              <p>3. Table of GO terms and their z scores</p>
+              <p>Results:&nbsp;&nbsp;<a class="w3-button w3-round-large w3-border" style="background-color:#d6efeb;font-size:16px" href="{% static ''%}{{task_id}}/user_eggnog_result.tar.gz" role="button">
+               Download  <i class="fa fa-arrow-down"></i>
+               </a></p>
+               <br />
+               <hr>
+              <div id="pathway_bar" style="width: 90%"></div>
+              
+        </div>
+    </div>
+    
+    
+    <!--Domain Mapping-->
+    <div class="pipeline_result" id="domain_result">
+        <div class="w3-main" style="margin-left:260px;margin-top:43px;">
+              <!-- Header -->
+              <header class="w3-container" style="padding-top:22px">
+                <h4><b><img src="{% static 'vertical-timeline/img/glyphicons-186-screenshot.png' %}"> Domain Mapping</b></h4>
+              </header>
+
+              <div class="w3-panel w3-border" style="width:90%;">
+                <p>Domain description here</p>
+              </div>
+              
+              <p>The following download link contains:</p> 
+              <p>1. Predicted but not annotated catalog sequence</p>
+              <p>2. Pfam result and the parsed one with unique (domain,query_name) in csv format</p>
+              <p>3. Domain frequency table, which includes the data of the bar chart and table below.</p>
+              <p>Results:&nbsp;&nbsp;<a class="w3-button w3-round-large w3-border" style="background-color:#d6efeb;font-size:16px" href="{% static ''%}{{task_id}}/user_pfam_result.tar.gz" role="button">
+               Download  <i class="fa fa-arrow-down"></i>
+               </a></p>
+              
+              <br />
+              <h5>Domain Frequency plot</h5>
+              <p>The bar chart shows the domains with top 30 frequency (the sum of gene catalog number.)</p>
+              <div id="DomainDiv" style="width: 90%"></div>
+              <br />
+              <br />
+              <hr>
+              <h5>Frequency Table</h5>
+              <div style="width: 90%">
+                    <table id="dom_table" class="display" >
+                        <thead>
+                        <tr>
+                            <th>Domain</th>
+                            <th>Accession(Link)</th>
+                            <th>Frequency</th>
+                            <th>Description</th>    
+                        </tr>
+                        </thead>
+                        <tbody>
+                            {% for dom,acc,f,des in out_domain_table %}
+                              <tr>
+                                <td>{{dom}}</td>
+                                <td><a href="http://pfam.xfam.org/family/{{acc}}" target="_blank">{{acc}}</a></td>
+                                <td>{{f}}</td>
+                                <td>{{des}}</td>
+                              </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+              </div>
+              
+        </div>
+    </div>
+              
+    <div class="w3-main" style="margin-left:260px;margin-top:43px;">
+    <div class="w3-container w3-dark-grey w3-padding-32">
+        <div class="w3-row">
+          <p class="text-muted">
+                Developed by Bioinformatics and Biostatistics Core Lab, Center of Genomic Medicine, National Taiwan University.
+          </p>
+        </div>
+        
+        
+    </div>
+    </div>
+    
+        
+    
+{% else %}   
+    <div class="pipeline_result" id="failed_result">
+        <div class="w3-main" style="margin-left:260px;margin-top:43px;">
+          <header class="w3-container" style="padding-top:22px">
+            <h4><b><img src="{% static 'vertical-timeline/img/glyphicons-30-notes-2.png' %}"> Overview</b></h4>
+          </header>
+          
+          <div class="w3-row-padding w3-margin-bottom">
+             <div class="w3-panel w3-border" style="width:90%;">
+               <p>Job Failed!</p>
+               <p>The followings are details about your job, and the download link to all the completed logs/results.</p>
+             </div>
+          </div>
+          <div class="w3-row-padding w3-margin-bottom" style="float:center">
+            <h5>Information about your job:</h5>
+            <table class="w3-table w3-striped w3-white" style="width:90%;">
+                <tr>
+                    <td width="30%">Job ID</td>
+                    <td>{{task_id}}</td>
+                </tr>
+                <tr>
+                    <td>Submission time</td>
+                    <td>{{overview.submit_time}}</td>
+                </tr>
+                <tr>
+                    <td>Start time</td>
+                    <td>{{overview.start_time}}</td>
+                </tr>
+                <tr>
+                    <td>End time</td>
+                    <td>{{overview.end_time}}</td>
+                </tr>
+                <tr>
+                    <td>Failed Step</td>
+                    <td>{{failed_step}}</td>
+                </tr>
+                <tr>
+                    <td>Download Link</td>
+                    {% if total_file %}
+                        <td>                    
+                            <a class="w3-button w3-round-large w3-border w3-tiny" style="background-color:#d6efeb;font-size:16px" href="{% static ''%}{{task_id}}/myjob.tar.gz" role="button">
+                            Download  <i class="fa fa-arrow-down"></i>
+                            </a>
+                        </td>    
+                    {% else %}
+                        <td>Tar Failed</td>
+                    {% endif %}
+                </tr>
+            </table>
+          </div>
+
+        </div>
+    </div>
+
+    <div class="w3-main" style="margin-top:43px;">
+    <div class="w3-container w3-dark-grey w3-padding-32">
+        <div class="w3-row">
+          <p class="text-muted" style="margin-left:260px;">
+                Developed by Bioinformatics and Biostatistics Core Lab, Center of Genomic Medicine, National Taiwan University.
+          </p>
+        </div>
+    </div>
+    </div>
+{% endif %}
+<script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+<script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+<script src="https://cdn.datatables.net/1.10.16/js/jquery.dataTables.min.js"></script>
+<script type="text/javascript" language="javascript" src="//cdn.datatables.net/buttons/1.5.1/js/dataTables.buttons.min.js"></script>
+<script type="text/javascript" language="javascript" src="//cdn.datatables.net/select/1.1.0/js/dataTables.select.min.js"></script>
+<script src="//cdn.datatables.net/buttons/1.1.2/js/buttons.flash.min.js"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/jszip/3.1.3/jszip.min.js"></script>
+<script src="//cdn.datatables.net/buttons/1.5.1/js/buttons.html5.min.js"></script>
+<!--<script src="https://cdnjs.cloudflare.com/ajax/libs/numeric/1.2.6/numeric.min.js"></script>-->
+<script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>    
+{% if success %}
+<script>
+$(document).ready(function () {
+    $("#summary_result").show();
+    $('table[id="species_table"]').DataTable();
+    $('table[id="abund_table"]').DataTable({
+        destroy: true,
+        dom: 'lfrtBip',
+        buttons: [
+            'csv'
+        ]
+    
+    });
+    $('table[id="dom_table"]').DataTable({
+        destroy: true,
+        dom: 'lfrtBip',
+        buttons: [
+            'csv'
+        ]
+    
+    });
+});
+// Get the Sidebar
+var mySidebar = document.getElementById("mySidebar");
+
+// Get the DIV with overlay effect
+var overlayBg = document.getElementById("myOverlay");
+// show result based on nav bar
+function loading(clicked_name)
+{
+    $(".pipeline_result").hide();
+    $("#"+clicked_name).show();
+    
+}
+// Toggle between showing and hiding the sidebar, and add overlay effect
+function w3_open() {
+    if (mySidebar.style.display === 'block') {
+        mySidebar.style.display = 'none';
+        overlayBg.style.display = "none";
+    } else {
+        mySidebar.style.display = 'block';
+        overlayBg.style.display = "block";
+    }
+}
+
+// Close the sidebar with the close button
+function w3_close() {
+    mySidebar.style.display = "none";
+    overlayBg.style.display = "none";
+}
+</script>
+<script>
+//Taxonomic Abundance
+var data = [
+  {
+    x: {{taxo_plot.0}},
+    y: {{taxo_plot.1}},
+    type: 'bar'
+  }
+];
+var layout = {
+  title:'Species Abundance',
+  height: 800,
+  margin: {
+    l: 50,
+    r: 50,
+    b: 300,
+    t: 50,
+  },
+  
+};
+Plotly.newPlot('myDiv', data,layout);
+</script>
+<script>
+var func_trace1 = {
+  y: {{go_plot.molecular_function.0}},
+  x: {{go_plot.molecular_function.1}},
+  text: {{go_plot.molecular_function.2}},
+  type: 'bar',
+  name: 'Molecular Function',
+  orientation:'h',
+  
+};
+
+var func_trace2 = {
+  y: {{go_plot.biological_process.0}},
+  x: {{go_plot.biological_process.1}},
+  text: {{go_plot.biological_process.2}},
+  type: 'bar',
+  name: 'Biological Process',
+  orientation:'h',
+  
+};
+
+var func_trace3 = {
+  y: {{go_plot.cellular_component.0}},
+  x: {{go_plot.cellular_component.1}},
+  text: {{go_plot.cellular_component.2}},
+  type: 'bar',
+  name: 'Cellular Component',
+  orientation:'h',
+ 
+};
+
+var func_data = [func_trace1, func_trace3, func_trace2];
+
+var func_layout = {
+  height: 650,
+  font:{
+    size:8,
+  },
+  legend:{
+    traceorder:'reversed',
+  },
+  hovermode: 'closest',
+  hoverlabel: {
+    namelength: 0,
+  },
+  title: 'GO Term Z Score',
+  xaxis: {
+    tickangle: -45,
+    autotick: false,
+    ticks: 'outside',
+    tick0: 0,
+    ticklen: 8,
+    tickwidth: 4,
+    tickcolor: '#000',
+    title:'z score',
+  },
+  shapes:[
+        {
+          type: 'line',
+          x0: 1.96,
+          y0:-1,
+          x1: 1.96,
+          y1: 30,
+          line: {
+            color: '#888888',
+            width: 3,
+            dash: 'dot',
+            },
+          
+        },
+        {
+          type: 'line',
+          x0: -1.96,
+          y0: -1,
+          x1: -1.96,
+          y1: 30,
+          line: {
+            color: '#888888',
+            width: 3,
+            dash: 'dot',
+            },
+          
+        },
+  ]
+
+};
+
+Plotly.newPlot('pathway_bar', func_data, func_layout);
+</script>
+<script>
+//domain abundance
+var domain_trace = {
+  y: {{domain_plot.0}},
+  x: {{domain_plot.1}},
+  text: {{domain_plot.2}},
+  type: 'bar',
+  orientation:'h',
+  name:'frequency',
+  
+};
+
+
+var domain_data = [domain_trace];
+
+var domain_layout = {
+  height: 650,
+  font:{
+    size:8,
+  },
+  legend:{
+    traceorder:'reversed',
+  },
+  hovermode: 'closest',
+  hoverlabel: {
+    namelength: 0,
+  },
+  title: 'Domain Frequency',
+  xaxis: {
+    tickangle: -45
+  },
+
+};
+
+Plotly.newPlot('DomainDiv', domain_data,domain_layout);
+</script>
+<script type="text/javascript">
+
+      google.charts.load("current", {packages:["corechart"]});
+      google.charts.setOnLoadCallback(drawChart);
+      function drawChart() {
+        var data = google.visualization.arrayToDataTable({{result}});
+
+        var options = {
+          title: 'Trimommatic Result',
+          is3D: true,
+          chartArea:{width:'50%',height:'75%'}
+        };
+
+        var chart = new google.visualization.PieChart(document.getElementById('piechart_3d'));
+        chart.draw(data, options);
+        
+        $(".pipeline_result").hide();
+        $("#summary_result").show();
+    }   
+</script>
+{% endif %}
+</body>
+</html>    

@@ -1,0 +1,22 @@
+include: 'snake_based_paths'
+
+rule aug_interpro:  
+    input:
+        user_root+"augustus/protein_seq.fasta"
+    output:
+        user_root+"interproscan/interproscan_gene.tsv",
+        user_root+"interproscan/KEGG_parsed.txt",
+        user_root+"interproscan/GO_term_annotation.txt",
+        user_root+"interproscan/GOSlim_annotation.txt",
+        user_root+"interproscan/GOSlim_meta_annotation.txt"
+    params:
+        sed_reg="'s/\*$//g'"
+    shell:
+        "source activate ngs_p2;"
+        "cd "+user_root+"interproscan;"
+        "sed -i -r {params.sed_reg} ../augustus/protein_seq.fasta;"
+        "{NON_CONDA_APP_BIN}interproscan-5.25-64.0/interproscan.sh -cpu 22 -f "+file_type+" -iprlookup -goterms -pa -b interproscan_gene -i {input};"  
+        "php {SUPPLEMENT_APP_BIN}parse_interproscan.php interproscan_gene.tsv KEGG > KEGG_parsed.txt;"
+        "source activate ngs;"
+        "python {SUPPLEMENT_APP_BIN}go_annotation_from_interproscan.py -o GO_term_annotation.txt -g {SUPPLEMENT_APP_BIN}goslim_generic.obo -O GOSlim_annotation.txt -s interproscan_gene.tsv {SUPPLEMENT_APP_BIN}go-basic.obo;"
+        "python {SUPPLEMENT_APP_BIN}go_annotation_from_interproscan.py -o /dev/null -g {SUPPLEMENT_APP_BIN}goslim_metagenomics.obo -O GOSlim_meta_annotation.txt -s interproscan_gene.tsv {SUPPLEMENT_APP_BIN}go-basic.obo;"

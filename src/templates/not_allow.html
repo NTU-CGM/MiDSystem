@@ -1,0 +1,10 @@
+{% extends 'base.html' %}
+
+{% block title %}NotAllow{% endblock title %}
+
+{% block content %}
+{% csrf_token %}
+<h2>Task Submit Not Allowed</h2>
+<p>{{msg}}</p>
+
+{% endblock content %}

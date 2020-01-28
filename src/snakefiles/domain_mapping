@@ -1,0 +1,21 @@
+include: 'snake_based_paths'
+
+#start domain mapping for predicted but not annotated genes
+rule dom_mapping:
+    input:
+        user_root+"cdhit/genecatalog",
+        user_root+"eggnog/result_diamond.emapper.annotations"
+    output:
+        user_root+"cdhit/predicted_gene.modified.txt",
+        user_root+"pfam/predicted_not_annoated.txt",
+        user_root+"pfam/pred_not_annot_seq.fa",
+        user_root+"pfam/pfam_result.txt"
+    shell:
+        "cd "+user_root+"cdhit;"
+        "grep 'gene' genecatalog > predicted_gene.txt;"
+        "sed -r 's/\s+>scaffold_*[0-9]+\.*[0-9]*//' predicted_gene.txt > predicted_gene.modified.txt;"
+        "cd "+user_root+"pfam;"
+        "python {SUPPLEMENT_APP_BIN}retrieve_not_annotated.py;"
+        "seqtk subseq "+user_root+"cdhit/genecatalog predicted_not_annoated.txt > pred_not_annot_seq.fa;"
+        "hmmscan --cpu 22 -E 1E-5 --noali --domtblout pfam_result.txt {PFAM_DB}Pfam-A.hmm pred_not_annot_seq.fa 1> /dev/null 2> pfam.log;"
+        

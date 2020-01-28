@@ -1,0 +1,57 @@
+{% extends 'base.html' %}
+{% block title %}Help{% endblock title %}
+{% block content %}
+{% load static %}
+
+<h2>Help</h2>
+<div class="panel panel-warning">
+  <div class="panel-heading">
+    <h3 class="panel-title">Quick Start</h3>
+  </div>
+  <div class="panel-body">
+      <p>For detail information and usage of MiDSystem</p>
+      <p><a class="btn btn-warning" href="{% static 'MiDSystem_quick_start.pdf' %}" target="_blank" role="button">View</a></p>
+  </div>
+</div>
+<div class="panel panel-info">
+  <div class="panel-heading">
+    <h3 class="panel-title">Demonstration Reports</h3>
+  </div>
+  <div class="panel-body">
+      <table class="table table-striped table-condensed">
+        <thead>
+          <tr>
+            <th>Functions</th>
+            <th>Example Links</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Reference-Guided Assembly (<i>E. coli</i>; SRR394603)</td>
+            <td><a class="btn btn-info" href="/be35e082-3bd7-11e9-9363-d89d67f39fa9/report" target="_blank" role="button">View</a></td>
+          </tr>
+          <tr>
+            <td>Non-Refernce Assembly (<i>E. coli</i>; SRR394603)</td>
+            <td><a class="btn btn-info" href="/0436de14-7762-11e8-b3cc-d89d67f39fa9/report" target="_blank" role="button">View</a></td>
+          </tr>
+          <tr>
+            <td>Metagenomics Analysis (TAT1; SRR3961740)</td>
+            <td><a class="btn btn-info" href="/meta/2bb4fdd2-739c-11e8-9dd6-d89d67f39fa9/report" target="_blank" role="button">View</a></td>
+          </tr>
+          <tr>
+            <td>Metagenomics Analysis (TAT2; SRR3961741)</td>
+            <td><a class="btn btn-info" href="/meta/e9823752-7366-11e8-aedf-d89d67f39fa9/report" target="_blank" role="button">View</a></td>
+          </tr>
+          <tr>
+            <td>Metagenomics Analysis (TAT3; SRR3961742)</td>
+            <td><a class="btn btn-info" href="/meta/687b64ee-7424-11e8-9c98-d89d67f39fa9/report" target="_blank" role="button">View</a></td>
+          </tr>
+          <tr>
+            <td>Metagenomics Analysis (TAT4; SRR3961743)</td>
+            <td><a class="btn btn-info" href="/meta/ae2651c6-742d-11e8-8b3d-d89d67f39fa9/report" target="_blank" role="button">View</a></td>
+          </tr>
+        </tbody>
+     </table>
+  </div>
+</div>
+{% endblock content %}

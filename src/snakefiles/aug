@@ -1,0 +1,55 @@
+include: 'snake_based_paths'
+
+#start
+if(REF==1):
+    input_file="ragout/a5_scaffolds.fasta"
+else:
+    input_file="a5_miseq/user.contigs.fasta"
+rule all:
+    input:
+        expand(user_root+"augustus/protein_seq.fasta"),
+        expand(user_root+"busco/protein/run_aug_protein/short_summary_aug_protein.txt"),
+        expand(user_root+"blast/spe_blastp.txt")
+
+        
+rule augustus:
+    input:
+        user_root+input_file
+    output:
+        user_root+"augustus/protein_seq.fasta",
+        user_root+"augustus/EVM.gff",
+        user_root+"augustus/cdna_seq.fasta",
+        
+    shell:
+        "cd "+user_root+"augustus;"      
+        "augustus --species="+aug_species+" --gff3=on --strand="+aug_strand+" --allow_hinted_splicesites=atac --alternatives-from-evidence=true --alternatives-from-sampling=false --noInFrameStop=true --protein=off --introns=off --start=off --stop=off --cds=on --codingseq=off --UTR=off --progress=true --genemodel=intronless  --outfile=augustus.gff {input};"
+        "{NON_CONDA_APP_BIN}EVidenceModeler-1.1.1/EvmUtils/misc/augustus_GFF3_to_EVM_GFF3.pl augustus.gff > EVM.gff;"
+        "{NON_CONDA_APP_BIN}EVidenceModeler-1.1.1/EvmUtils/gff3_file_to_proteins.pl EVM.gff {input} > protein_seq.fasta;"
+        "{NON_CONDA_APP_BIN}EVidenceModeler-1.1.1/EvmUtils/gff3_file_to_proteins.pl EVM.gff {input} cDNA > cdna_seq.fasta;"
+        
+rule aug_busco:
+    input:
+        user_root+"augustus/protein_seq.fasta"
+    output:
+        user_root+"busco/protein/run_aug_protein/short_summary_aug_protein.txt"
+    params:
+        busco_ref=BUSCO_DB+"bacteria_odb9"
+    shell:
+        "cd "+user_root+"busco/protein;"
+        "busco -i {input} -l {params.busco_ref} -o aug_protein -e "+pred_assm_e_value+" -sp "+pred_assm_busco_species+" -m prot -c 4 -f 1> aug_busco.stdout.log 2>aug_busco.stderr.log;"
+        "busco_plot -wd run_aug_protein 1> aug_busco_plot.stdout.log 2> aug_busco_plot.stderr.log;"
+
+##remember the gi!!!!   
+##makeblastdb -in test_bacteria_odb9.fasta -dbtype prot -out test_bacteria_odb9.fasta   
+rule aug_blast:
+    input:
+        user_root+"augustus/protein_seq.fasta"
+    output:
+        user_root+"blast/spe_blastp.txt"
+    params:
+        blast_db=BLAST_DB+"nr",
+        blast_gi=SUPPLEMENT_APP_BIN+"Bacteria_RefSeq.gi"
+    shell:
+        "cd "+user_root+"blast;"       
+        "blastp -query {input} -db {params.blast_db} -out spe_blastp.txt -evalue "+blast_e_value+" -num_threads 22 -outfmt '6 std qcovs staxids' -max_target_seqs 1 -gilist {params.blast_gi};"
+

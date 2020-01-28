@@ -1,0 +1,88 @@
+include: 'snake_based_paths'
+
+from random import * 
+random_p=str(randint(1,5000))
+random_x=str(randint(1,5000))
+rule all:
+    input:
+        expand(user_root+'tree/'+bac_meta[0][1]),
+        expand(user_root+'tree/orthomcl/similarSequences.txt'),
+        expand(user_root+'tree/merged.nucl.fa'),
+        expand(user_root+'tree/raxml/RAxML_bipartitions.phylogeny'),
+        expand(user_root+'tree/raxml/mytree.png')
+
+#run orthomcl 
+rule run_adjust_fasta:
+    input:
+        user_root+'tree/'+bac_meta[0][1]
+    output:
+        user_root+'tree/orthomcl/compliantFasta/'+bac_meta[0][0]+'.fasta'
+    run: 
+        shell("mkdir -p "+user_root+"tree/orthomcl/compliantFasta;")
+        shell("mkdir -p "+user_root+"tree/cdna/converted;")
+        for i in bac_meta:
+            shell("cd "+user_root+"tree/orthomcl/compliantFasta; {NON_CONDA_APP_BIN}orthomclSoftware-v2.0.9/bin/orthomclAdjustFasta "+i[0]+"  ../../"+i[1]+" 1;")
+            shell("cd "+user_root+"tree/cdna/converted; {NON_CONDA_APP_BIN}orthomclSoftware-v2.0.9/bin/orthomclAdjustFasta "+i[0]+"  ../"+i[2]+" 1;")
+
+rule run_orthomcl:
+    input:
+        user_root+'tree/orthomcl/compliantFasta/'+bac_meta[0][0]+'.fasta'
+    output:
+        user_root+'tree/orthomcl/similarSequences.txt',
+        user_root+'tree/orthomcl/gene_family_groups.txt'
+    shell:
+        "cd "+user_root+"tree/orthomcl;"
+        "{NON_CONDA_APP_BIN}orthomclSoftware-v2.0.9/bin/orthomclFilterFasta compliantFasta 10 20;"
+        "makeblastdb -in goodProteins.fasta -dbtype prot;"
+        "blastp -query goodProteins.fasta -db goodProteins.fasta -outfmt 6 -num_threads 15 -evalue 1E-5 -out all_VS_all.out.tab -seg yes;"
+        "{NON_CONDA_APP_BIN}orthomclSoftware-v2.0.9/bin/orthomclBlastParser all_VS_all.out.tab ./compliantFasta >> similarSequences.txt;"
+        "mv ../orthomcl.config orthomcl.config;"
+        "{NON_CONDA_APP_BIN}orthomclSoftware-v2.0.9/bin/orthomclInstallSchema orthomcl.config;"
+        "{NON_CONDA_APP_BIN}orthomclSoftware-v2.0.9/bin/orthomclLoadBlast orthomcl.config similarSequences.txt;"
+        "{NON_CONDA_APP_BIN}orthomclSoftware-v2.0.9/bin/orthomclPairs orthomcl.config orthomcl_pairs.log cleanup=yes;"
+        "{NON_CONDA_APP_BIN}orthomclSoftware-v2.0.9/bin/orthomclDumpPairsFiles orthomcl.config;"
+        "mcl mclInput --abc -I 1.5 -o mclOutput;"
+        "{NON_CONDA_APP_BIN}orthomclSoftware-v2.0.9/bin/orthomclMclToGroups group 1 < mclOutput > gene_family_groups.txt;"
+        "{SUPPLEMENT_APP_BIN}import_orthomcl_group_to_db orthomcl.config gene_family_groups.txt;"
+          
+    
+
+#muscle and merge
+rule muscle_merge:
+    input:
+        user_root+'tree/orthomcl/gene_family_groups.txt'
+    output:
+        user_root+'tree/merged.nucl.fa'
+    shell:
+        "cd "+user_root+"tree/cdna/converted;"
+        "cat *.fasta > merged.fa;"
+        "cd "+user_root+"tree;"
+        "export NON_CONDA_APP_BIN={NON_CONDA_APP_BIN};"
+        "export CONDA_APP_BIN={CONDA_APP_BIN};"
+        "{SUPPLEMENT_APP_BIN}run_muscle_gblocks orthomcl/orthomcl.config "+user_root+"tree/cdna/converted/merged.fa alignment nucl 2> /dev/null;"
+        "{SUPPLEMENT_APP_BIN}merge_aligned_sequences orthomcl/orthomcl.config alignment merged.nucl.fa;"
+
+    
+
+#raxml
+rule run_raxml:
+    input:
+        user_root+'tree/merged.nucl.fa'
+    output:
+        user_root+'tree/raxml/RAxML_bipartitions.phylogeny'
+    shell:
+        "cd "+user_root+"tree/raxml;"
+        "raxmlHPC-PTHREADS-SSE3 -T 15 -f a -m GTRGAMMA -p "+random_p+" -x "+random_x+" -# 100 -s ../merged.nucl.fa -n phylogeny;"
+        
+
+#draw tree plot (here? or at python?)
+
+rule draw_tree:
+    input:
+        user_root+'tree/raxml/RAxML_bipartitions.phylogeny'
+    output:
+        user_root+'tree/raxml/mytree.png'
+    shell:
+        "source activate ngs_p2;"
+        "cd "+user_root+"tree/raxml;"
+        "python {SUPPLEMENT_APP_BIN}draw_tree.py"

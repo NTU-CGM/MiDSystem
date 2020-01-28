@@ -1,0 +1,13 @@
+{% extends 'base.html' %}
+
+{% block title %}NotMatch{% endblock title %}
+
+{% block content %}
+{% csrf_token %}
+
+<p>There is no any task ID match with {{task_id}} in the system.</p>
+<p>Note: No matter successfule or not, your task will be available for one month after completion, then it will be removed.</p>
+<p>Possible reasons to see this page:</p>
+<p>1. Your job is removed</p>
+<p>2. The task is not created or the task ID is wrong.</p>
+{% endblock content %}

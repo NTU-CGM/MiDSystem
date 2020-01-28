@@ -1,0 +1,28 @@
+{% extends 'base.html' %}
+
+{% block title %}MiDSystem | A Comprehensive Online System for De Novo Assembly and Analysis of Microbial Genomes{% endblock title %}
+
+{% block content %}
+{% load static %}
+
+<div class="container-fluid bg-3 text-center">
+    <h2>Introduction</h2>
+    <p class="lead text-left"><b>MiDSystem</b> is a comprehensive online system for <i>de novo</i> assembly and analysis of microbial genomes. It supports both <u>whole genome assembly</u> (Figure 1) and <u>metagenomics analysis</u> pipelines (Figure 2) in shotgun sequencing data.</p>
+    <div class="row">
+        <div class="col-lg-6 col-md-6 col-sm-6 col-xs-6">
+            <p><img class="img-responsive" src="{% static 'images/Fig1.png' %}"></p>
+            <p><b>Figure 1</b> The workflow of the <i>de novo</i> assembly.</p>
+        </div>
+        <div class="col-lg-6 col-md-6 col-sm-6 col-xs-6">
+            <p><img class="img-responsive" src="{% static 'images/Fig2.png' %}" style="margin-top: 21px;"></p>
+            <p><b>Figure 2</b> The workflow of metagenomics analysis.</p>
+        </div>
+    </div>
+<br />
+<hr />
+    <h2>Getting started</h2>
+    <p class="lead text-left">To get started, select <a href="{% url 'reference_guided' %}">Reference-Guided Assembly</a> or <a href="{% url 'non_ref' %}">Non-Refernce Assembly</a> for a single bacterial genome, click <a href="{% url 'meta_home' %}">Metagenomics Analysis</a> for shotgun metagenomic sequencing. See <a href="{% url 'help' %}">Help</a> for quick start on how to use MiDSystem and view demonstration reports.</p>
+</div>
+
+{% endblock content %}
+

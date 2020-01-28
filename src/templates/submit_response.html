@@ -1,0 +1,14 @@
+{% extends 'base.html' %}
+
+{% block title %}Task Submitted{% endblock title %}
+
+{% block content %}
+{% csrf_token %}
+<h1>Your task has been submitted to the system.</h1>
+<h3>There are now {{job_numbers}} jobs are queueing on the system.</h3>
+<h3>Approximate waiting time:</h3>
+<h3>Approximate execution time:</h3>
+<h3>A unique link has been sent to your email, please trace the status/result by the link.<h3>
+<h3>Your link:<a href="{{user_status_link}}">Link</a></h3>
+
+{% endblock content %}

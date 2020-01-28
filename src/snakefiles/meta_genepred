@@ -1,0 +1,22 @@
+include: 'snake_based_paths'
+
+#start gene_prediction and clustering
+rule gene_pred_cluster:
+    input:
+        user_root+"a5_miseq/user.final.scaffolds.fasta"
+    output:
+        user_root+"metagenemark/user.protein.fasta",
+        user_root+"metagenemark/user.nul.fasta",
+        user_root+"metagenemark/user.gff",
+        user_root+"cdhit/genecatalog"
+    shell:
+        "cd "+user_root+"metagenemark;"
+        "{NON_CONDA_APP_BIN}MetaGeneMark_linux_64/mgm/gmhmmp -a -A user.protein.fasta -D user.nul.fasta -d -f 3 -m {NON_CONDA_APP_BIN}MetaGeneMark_linux_64/mgm/MetaGeneMark_v1.mod ../a5_miseq/user.final.scaffolds.fasta -o user.gff;"
+        "sed -i '/^[[:space:]]*$/d' user.nul.fasta;"
+        "sed -i '/^[[:space:]]*$/d' user.protein.fasta;"
+        "cd "+user_root+"cdhit;"
+        "cd-hit -i ../metagenemark/user.protein.fasta -o genecatalog -c "+cdhit_thresh+" -sc 1 -n 5 -M 16000 -d 0 -T 8"
+    
+    
+    
+     

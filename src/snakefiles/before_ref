@@ -1,0 +1,44 @@
+include: 'snake_based_paths'
+
+#start 
+from signal import signal, SIGPIPE, SIG_DFL
+signal(SIGPIPE, SIG_DFL) 
+rule all:
+    input:      
+        expand(user_root+"a5_miseq/user.contigs.fasta"),
+        expand(user_root+"quast/contig/report.pdf"),
+        expand(user_root+"busco/contig/run_a5/short_summary_a5.txt")
+#a5
+rule a5miseq:
+    input:
+        user_root+"trimmomatic/R1.trimmed.fastq",
+        user_root+"trimmomatic/R2.trimmed.fastq"
+    output:
+        user_root+"a5_miseq/user.contigs.fasta"
+
+    shell:
+        "cd "+user_root+"a5_miseq;"
+        "a5_pipeline.pl --threads=22 {input} user 1> a5.stdout.log 2>a5.stderr.log;"
+        
+rule quast:
+    input:
+        user_root+"a5_miseq/user.contigs.fasta"
+    output:
+        user_root+"quast/contig/report.pdf"
+    shell:
+        "source activate ngs_p2;"
+        "quast -o "+user_root+"quast/contig"+ref_path+" -m "+m_value+" --contig-thresholds "+contig_thresholds+" -t 22 {input} 1> "+user_root+"/quast/quast_a5.stdout.log 2>"+user_root+"/quast/quast_a5.stderr.log;"
+        "source activate ngs;"
+        
+rule a5busco:
+    input:
+        user_root+"a5_miseq/user.contigs.fasta"
+        
+    params:
+        busco_ref=BUSCO_DB+"bacteria_odb9"
+    output:
+        user_root+"busco/contig/run_a5/short_summary_a5.txt"
+    shell:
+        "cd "+user_root+"busco/contig;"
+        "busco -i {input} -l {params.busco_ref} -o a5 -e "+a5_e_value+" -sp "+a5_busco_species+" -m genome -c 4 -f 1> a5busco.stdout.log 2>a5busco.stderr.log;"
+        "busco_plot -wd run_a5 1> a5busco_plot.stdout.log 2>a5busco_plot.stderr.log;"

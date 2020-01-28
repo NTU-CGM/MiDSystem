@@ -1,0 +1,22 @@
+include: 'snake_based_paths'
+
+#start kraken
+
+rule run_kraken_command:
+    input:
+        user_root+"kraken/R1.fastq",
+        user_root+"kraken/R2.fastq"
+    output:
+        user_root+"kraken/classified.fa",
+        user_root+"kraken/exclused_seq_id.txt",
+        user_root+"raw/R1.fastq",
+        user_root+"raw/R2.fastq",
+    shell:
+        "cd "+user_root+"kraken;"
+        "cp {SUPPLEMENT_APP_BIN}kraken_command.sh .;"
+        "chmod +x kraken_command.sh;"
+        "./kraken_command.sh;"
+  
+
+
+

@@ -1,0 +1,35 @@
+#REF=0
+if(REF==1):
+    rule remap_ref:
+        input:
+            user_root+"ragout/a5_scaffolds.fasta"
+        output:
+            user_root+"bowtie2/scaffold/remapping.bam"
+        shell:
+            "mkdir "+user_root+"ragout/bowtie2_idx;"
+            "cd "+user_root+"ragout/bowtie2_idx;"
+            "bowtie2-build --threads 15 {input} a5_scaffolds.fasta;"
+            "cd ../..;"
+            "mkdir -p bowtie2/scaffold;"
+            "cd bowtie2/scaffold;"
+            "bowtie2 -p 15"+no_unal+" -x ../../ragout/bowtie2_idx/a5_scaffolds.fasta -1 ../../trimmomatic/R1.trimmed.fastq -2 ../../trimmomatic/R2.trimmed.fastq 1> bowtie2.sam 2> bowtie2.log;"
+            "samtools view -S -b bowtie2.sam > remapping.bam;"
+
+else:
+    print("non_ref")
+    rule remap_non_ref:
+        input:
+            user_root+"a5_miseq/user.contigs.fasta"
+        output:
+            user_root+"bowtie2/contig/remapping.bam"
+        shell:
+            "mkdir "+user_root+"a5_miseq/bowtie2_idx;"
+            "cd "+user_root+"a5_miseq/bowtie2_idx;"
+            "bowtie2-build --threads 15 {input} user.contigs.fasta;"
+            "cd ../..;"
+            "mkdir -p bowtie2/contig;"
+            "cd bowtie2/contig;"
+            "bowtie2 -p 15"+no_unal+" -x ../../a5_miseq/bowtie2_idx/user.contigs.fasta -1 ../../trimmomatic/R1.trimmed.fastq -2 ../../trimmomatic/R2.trimmed.fastq 1> bowtie2.sam 2> bowtie2.log;"
+            "samtools view -S -b bowtie2.sam > remapping.bam;"
+
+

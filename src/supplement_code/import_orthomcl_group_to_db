@@ -1,0 +1,174 @@
+#!/usr/bin/env php
+<?php
+if($argc != 3)
+{
+	echo "Usage: import_orthomcl_group_to_db <orthoMCL config> <gene family file>\n";
+	exit;
+}
+
+if(!file_exists($argv[1])) // The config file
+{
+	show_stderr('Error: cannot load `' . $argv[1] . "': No such file or directory\n");
+	die;
+}
+elseif(!file_exists($argv[2])) // The imported file
+{
+	show_stderr('Error: cannot load `' . $argv[2] . "': No such file or directory\n");
+	die;
+}
+
+$dbConnectString = '';
+$dbLogin = '';
+$dbPassword = '';
+$fp_config_file = fopen($argv[1], 'r');
+while(!feof($fp_config_file))
+{
+	$line = trim(fgets($fp_config_file));
+	if($line == '')  {continue;}
+	if(substr($line, 0, 1) == '#')	{continue;}
+	
+	$arr_temp_line = explode('=', $line);
+	switch($arr_temp_line[0])
+	{
+		case 'dbVendor':
+			if(strtolower($arr_temp_line[1]) != 'mysql')
+			{
+				show_stderr("Error: Supporting MySQL datase only.\n");
+				die;
+			}
+			break;
+		case 'dbConnectString':
+			$dbConnectString = array_pop(explode(':', $arr_temp_line[1]));
+			break;
+		case 'dbLogin':
+			$dbLogin = $arr_temp_line[1];
+			break;
+		case 'dbPassword':
+			$dbPassword = $arr_temp_line[1];
+			break;
+	}
+}
+fclose($fp_config_file);
+
+if($dbConnectString == '' || $dbLogin == '' || $dbPassword == '')
+{
+	show_stderr("Error: Config file error.\n");
+	die;
+}
+
+$TABLE_NAME = 'my_gene_family';
+$db = new DB('localhost', $dbLogin, $dbPassword, $dbConnectString, 'utf8');
+
+$db->query("DROP TABLE IF EXISTS `$TABLE_NAME`;");
+$db->query("CREATE  TABLE  `$dbConnectString`.`$TABLE_NAME` (`family_id` varchar(64) NOT NULL,
+`species` varchar(255) NOT NULL, `gene_id` varchar(255) NOT NULL, PRIMARY KEY(`family_id`, `species`, `gene_id`)) ENGINE=InnoDB DEFAULT CHARSET=utf8;");
+
+$fp_import_file = fopen($argv[2], 'r');
+while(!feof($fp_import_file))
+{
+	$line = trim(fgets($fp_import_file));
+	if($line == '')  {continue;}
+	if(substr($line, 0, 1) == '#')	{continue;}
+	
+	$arr_col = explode(': ', $line);
+	$family_id = $arr_col[0];
+	
+	$arr_genes = explode(' ', $arr_col[1]);
+	foreach($arr_genes as $str_gene)
+	{
+		$tmp = explode('|', $str_gene);
+		$species = $tmp[0];
+		$gene = $tmp[1];
+		
+		$db->query("INSERT INTO `$TABLE_NAME` VALUES ('$family_id', '$species', '$gene');");
+	}
+	
+}
+
+fclose($fp_import_file);
+
+function show_stderr($e)
+{
+        $stderr_fp = fopen('php://stderr', 'a');
+        fwrite($stderr_fp, $e);
+        fclose($stderr_fp);
+}
+
+class DB
+{
+	var $DB_HOST;
+	var $DB_USER;
+	var $DB_PASSWORD;
+	var $DB_NAME;
+	var $DB_LANGUAGE;
+	
+	var $conn;
+	var $result;
+	
+	function DB($argDB_HOST = '127.0.0.1', $argDB_USER = '', $argDB_PASSWORD = '', $argDB_NAME = '', $argDB_Language = 'utf8')
+	{
+		$this->DB_HOST = $argDB_HOST;
+		$this->DB_USER = $argDB_USER;
+		$this->DB_PASSWORD = $argDB_PASSWORD;
+		$this->DB_NAME = $argDB_NAME;
+		$this->DB_LANGUAGE = $argDB_Language;
+		
+		$this->connect();
+	}
+	
+	function connect()
+	{
+		@ $this->conn = mysql_connect($this->DB_HOST, $this->DB_USER, $this->DB_PASSWORD);
+		
+		if (mysql_errno())
+			$this->err_msg();
+		else
+			mysql_select_db($this->DB_NAME, $this->conn);
+			
+		if (mysql_errno())
+			$this->err_msg();
+		else
+			$this->query("SET NAMES ".$this->DB_LANGUAGE);
+	}
+	
+	function query($argQuery)
+	{
+		$this->result = mysql_query($argQuery, $this->conn);
+		
+		if (mysql_errno())
+			$this->err_msg();
+	}
+	
+	function num_rows()
+	{
+		return mysql_num_rows($this->result);
+	}
+	
+	function num_fields()
+	{
+		return mysql_num_fields($this->result);
+	}
+	
+	function fetch_assoc()
+	{
+		return mysql_fetch_assoc($this->result);
+	}
+	
+	function fetch_row()
+	{
+		return mysql_fetch_row($this->result);
+	}
+	
+	function close()
+	{
+		mysql_close($this->conn);
+	}
+	
+	function err_msg()
+	{
+		echo "[".mysql_errno()."]: ".mysql_error()."<br />";
+		exit();
+	}
+	
+}
+?>

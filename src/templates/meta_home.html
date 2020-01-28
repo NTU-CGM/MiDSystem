@@ -1,0 +1,267 @@
+{% extends 'base.html' %}
+
+{% block title %}Metagenomics{% endblock title %}
+{% load static %}
+{% block content %}
+
+<form action="{% url 'meta_result' %}" method="POST" target="_blank">
+{% csrf_token %}
+<h1>Metagenomics Analysis</h1>
+<div class="panel-group">
+ <div class="panel panel-danger">
+    <div class="panel-heading">Basic Information</div>
+    <div class="panel-body">
+        <p>please provide your basic information.</p>
+        <div class="form-group">
+            <label for="email">Email address:</label>
+            <input type="email" class="form-control" name="email" id="email" required />
+        </div>
+        <p>Please re-enter your Email for comfirmation.</p>
+        <div class="form-group">
+            <label for="email">Re-enter Email address:</label>
+            <input type="email" class="form-control" name="re_enter" id="re_enter" required />
+        </div>
+    
+    </div>
+  </div>
+  <div class="panel panel-info"> <!--quality check-->
+    <div class="panel-heading">Step 1. Reads Upload</div>
+    <div class="panel-body">
+    Select a method for uploading files:<br />
+    <label class="radio-inline">
+        <input type="radio" name="rad_upload_method" id="from_browser" value="from_browser" checked />From browser
+    </label>
+    <label class="radio-inline">
+        <input type="radio" name="rad_upload_method" id="from_url" value="from_url" />From URLs
+    </label>
+    <input type="hidden" id="upload_method" name="upload_method" value="" />
+    <p>In this step, we will provide FastQC, MultiQC and Trimommatic to control the quality of your data uploaded below.</p>
+    Do you want to remove human/mouse/rat sequence in your data with Kraken? <br />   
+    <label class="radio-inline">
+        <input type="radio" name="use_kraken" id="no_kraken" value="no" checked />No, thanks.
+    </label>
+    <label class="radio-inline">
+        <input type="radio" name="use_kraken" id="yes_kraken" value="yes" />Yes, I want to use Kraken.
+    </label>
+    <br />
+    <br />
+    
+    <div id="browser_upload">
+        <p>Please upload your sequencing files R1 and R2 here. Only allow <b>.fastq</b>/<b>.fq</b> and <b>.gz</b> format. Allowed maximum size for each file: <b>20 GB</b>.</p>
+        <div id="upload_area">
+            <div id="fileuploader"></div>
+            <div id="upload_button" class="btn btn-primary start">
+                <i class="glyphicon glyphicon-upload"></i>
+                <span>Start upload</span>
+            </div>
+        </div>
+    </div>
+        
+    <div id="url_upload">
+        <p>Please provide URLs (e.g., <b>http://</b>, <b>https://</b>, or <b>ftp://</b>) of your sequencing files in R1 and R2 fields. Using a share link from Google Drive is available. Only allow <b>.fastq</b>/<b>.fq</b> and <b>.gz</b> format.</p>
+        <label for="url_R1">R1:</label><div id="url_R1_err" style="color:red;"></div>
+        <input type="url" class="form-control" id="url_R1" name="url_R1" style="margin-bottom: 10px;" />
+        <input type="hidden" id="confirmed_url_R1" name="confirmed_url_R1" value="" />
+        <label for="url_R2">R2:</label><div id="url_R2_err" style="color:red;"></div>
+        <input type="url" class="form-control" id="url_R2" name="url_R2" style="margin-bottom: 10px;" />
+        <input type="hidden" id="confirmed_url_R2" name="confirmed_url_R2" value="" />
+        <div id="url_confirm_button" class="btn btn-primary start">
+                <i class="glyphicon glyphicon-cloud-download"></i>
+                <span>Confirm URLs</span>
+        </div>
+    </div>
+    
+    </div>
+        <input type="hidden" id="upload_id" name="upload_id" value="" />
+  </div>
+  <div id="fin_upload">
+  <div class="panel panel-success"> <!--de novo assembly-->
+    <div class="panel-heading">Step 2. Assembly</div>
+    <div class="panel-body">
+        In this step, we provide A5-miseq for assebly sequence.<br />
+        <!--
+        <label class="radio-inline">
+            <input type="radio" name="denovo_setting" id="denovo_default" value="default" checked />Default Settings
+        </label>
+        <label class="radio-inline">
+            <input type="radio" name="denovo_setting" id="denovo_custom" value="custom" />Customized
+        </label>
+        <table class="table table-striped table-condensed" name="denovo_table">
+            <thead>
+              <tr>
+                <th>Quast settings</th>
+                <th>Values</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>minimum contig-thresholds (>=0)</td>
+                <td style="width: 60%">
+                    <div class="form-group">
+                        <input type="number" class="form-control" name="contig_thresholds" value="300" min="0" />
+                    </div>
+                </td>
+              </tr>
+            </tbody>
+        </table>
+        -->
+    </div>
+  </div>
+  <div class="panel panel-info"> <!--Taxonomic Abundance-->
+    <div class="panel-heading">Step 3. Taxonomic Abundance</div>
+    <div class="panel-body">
+    In this step, we provide MetaPhlAn to calculate tanomomic abundance and GraPhlAn to visualize the result.<br />
+    <label class="radio-inline">
+        <input type="radio" name="taxo_setting" id="taxo_default" value="default" checked />Default Settings
+    </label>
+    <label class="radio-inline">
+        <input type="radio" name="taxo_setting" id="taxo_custom" value="custom" />Customized
+    </label>
+    <table class="table table-striped table-condensed" name="taxo_table">
+        <thead>
+          <tr>
+            <th>GraPhlAn settings</th>
+            <th>Values</th>
+          </tr>
+        </thead>
+        <tbody>
+              <tr>
+                <td>Output File format</td>
+                <td style="width: 60%">
+                    <div class="checkbox">
+                      <label><input name="file_type" type="checkbox" value="png" checked disabled />png</label>
+                    </div>
+                    <div class="checkbox">
+                      <label><input name="file_type" type="checkbox" value="pdf" />pdf</label>
+                    </div>
+                    <div class="checkbox">
+                      <label><input name="file_type" type="checkbox" value="ps" />ps</label>
+                    </div>
+                    <div class="checkbox">
+                      <label><input name="file_type" type="checkbox" value="eps" />eps</label>
+                    </div>
+                    <div class="checkbox">
+                      <label><input name="file_type" type="checkbox" value="svg" />svg</label>
+                    </div>                    
+                </td>
+              </tr>
+        </tbody>
+    </table>
+    </div>
+  </div>
+  <div class="panel panel-success"> <!--gene prediction-->
+    <div class="panel-heading">Step 4. Gene Prediction and Clustering</div>
+    <div class="panel-body">
+    In this step, we provide Metagenemark and CD-HIT.<br />
+    <label class="radio-inline">
+        <input type="radio" name="pred_setting" id="pred_default" value="default" checked />Default Settings
+    </label>
+    <label class="radio-inline">
+        <input type="radio" name="pred_setting" id="pred_custom" value="custom" />Customized
+    </label>
+    <table class="table table-striped table-condensed" name="pred_table">
+        <thead>
+          <tr>
+            <th>CD-HIT settings</th>
+            <th>Values</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>clustering threshold<br />(range:0.7~1.0)</td>
+            <td>
+                <div class="form-group">
+                    <input type="number" name="cdhit_thresh" class="form-control" value="0.97" step="0.01" min="0.7" max="1.0"/>
+                </div>
+            </td>
+          </tr>
+          
+        </tbody>
+    </table>
+    </div>
+  </div>
+  <div class="panel panel-info"> <!--functional annotation and abundance-->
+    <div class="panel-heading">Step 5. Functional Annotation and Abundance</div>
+    <div class="panel-body">
+    In this step, we provide eggNOG-mapper (with diamond) for annotation and Bowtie/eXpress for abundance counting.<br />
+    <label class="radio-inline">
+        <input type="radio" name="function_setting" id="function_default" value="default" checked />Default Settings
+    </label>
+    <label class="radio-inline">
+        <input type="radio" name="function_setting" id="function_custom" value="custom" />Customized
+    </label>
+    <table class="table table-striped table-condensed" name="function_table">
+        <thead>
+          <tr>
+            <th>Bowtie settings</th>
+            <th>Values</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Insert size (-X)<br />(range:250~800)</td>
+            <td>
+                <div class="form-group">
+                    <input type="number" name="bowtie_insert_size" class="form-control" value="800" step="10" min="250" max="800"/>
+                </div>
+            </td>
+          </tr>
+          <tr>
+            <td>Mismatch (-v)<br />(type: Integer)</td>
+            <td>
+                <div class="form-group">
+                    <input type="number" name="bowtie_mismatch" class="form-control" value="3" step="1" min="0" max="35"/>
+                </div>
+            </td>
+          </tr>
+        </tbody>
+    </table>
+    </div>
+  </div>
+  <div class="panel panel-success"> <!--non-annotate search-->
+    <div class="panel-heading">Step 6. Domain Mapping</div>
+    <div class="panel-body">
+    In this step, we provide domain information and sequence for cd-hit clustered genes that are predicted but not annotated.<br />
+    Domain information is provided through Pfam and HMMER (hmmscan.)<br />
+    <label class="radio-inline">
+        <input type="radio" name="non_annotate_setting" id="non_annotate_default" value="default" checked />Default Settings
+    </label>
+    <label class="radio-inline">
+        <input type="radio" name="non_annotate_setting" id="non_annotate_custom" value="custom" />Customized
+    </label>
+    <table class="table table-striped table-condensed" name="non_annotate_table">
+        <thead>
+          <tr>
+            <th>HMMER(hmmscan) settings</th>
+            <th>Values</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>e-value</td>
+            <td style="width: 60%">
+                <div class="form-group">
+                    <input type="text tab" name="hmmer_e_value" id="hmmer_e_value" class="form-control" value="1E-5" />
+
+                </div>
+            </td>
+          </tr>
+          
+        </tbody>
+    </table>
+    </div>
+  </div>
+  
+<button class="btn btn-default" type="submit" id="submit">Submit</button>
+</div>
+</div>
+</form>
+{% endblock content %}
+{% block scripts %}
+<script src="//code.jquery.com/ui/1.11.4/jquery-ui.min.js"></script>
+<script type="text/javascript" src="{% static '/js/uploadfile/jquery.form.js' %}"></script>
+<script type="text/javascript" src="{% static '/js/get_cookie.js' %}"></script>
+<script type="text/javascript" src="{% static '/js/uploadfile/sha256.js' %}"></script>
+<script type="text/javascript" src="{% static '/js/uploadfile/jquery.uploadfile.js' %}"></script>
+<script type="text/javascript" src="{% static '/js/meta_frontend.js' %}"></script>
+{% endblock%}

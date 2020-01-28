@@ -1,0 +1,241 @@
+{% extends 'base.html' %}
+
+{% block title %}Status{% endblock title %}
+{% load static %}
+{% block content %}
+{% csrf_token %}
+<link rel="stylesheet" type="text/css" href="{% static 'vertical-timeline/css/style.css' %}">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Raleway">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+
+<style>
+html,body,h1,h2,h3,h4,h5 {font-family: "Helvetica Neue",Helvetica,Arial,sans-serif;}
+</style>
+<h1 align="center">Task Status</h1>
+
+
+<!--
+<p id="qc"></p>
+<p id="denovo"></p>
+<p id="ref"></p>
+<p id="gene_pred"></p>
+<p id="go"></p>
+<p id="tree"></p>-->
+
+<section id="cd-timeline" class="cd-container">
+  <div class="cd-timeline-block">
+    <div class="cd-timeline-img cd-picture"><img src="{% static 'vertical-timeline/img/glyphicons-28-search.png' %}" alt="Picture"></div>
+    <!-- cd-timeline-img -->
+    
+    <div class="cd-timeline-content">
+      <!--<h2>Quality Control</h2>-->
+      <h2><img name="qc_checked" src="{% static 'vertical-timeline/img/checked.png' %}" style="display:None"><img name="qc_unchecked" src="{% static 'vertical-timeline/img/unchecked.png' %}">&nbsp;&nbsp;Quality Control</h2>
+      <p id="qc"></p>
+      <p>Discription here</p>
+    <!-- cd-timeline-content --> 
+    
+    </div>
+  <!-- cd-timeline-block -->
+  
+  <div class="cd-timeline-block">
+    <div class="cd-timeline-img cd-movie"> <img src="{% static 'vertical-timeline/img/glyphicons-111-align-left.png' %}" alt="Movie"> </div>
+    <!-- cd-timeline-img -->
+    
+    <div class="cd-timeline-content">
+      <h2><img name="a5_checked" src="{% static 'vertical-timeline/img/checked.png' %}" style="display:None"><img name="a5_unchecked" src="{% static 'vertical-timeline/img/unchecked.png' %}">&nbsp;&nbsp;<i>De Novo</i> Assembly</h2>
+      <p id="denovo"></p>
+      <p>Discription here</p>
+    <!-- cd-timeline-content --> 
+    </div>
+  <!-- cd-timeline-block -->
+  
+  <div class="cd-timeline-block">
+    <div class="cd-timeline-img cd-location"> <img src="{% static 'vertical-timeline/img/glyphicons-320-sort.png' %}" alt="Picture"> </div>
+    <!-- cd-timeline-img -->
+    
+    <div class="cd-timeline-content">
+      <h2><img name="rag_checked" src="{% static 'vertical-timeline/img/checked.png' %}" style="display:None"><img name="rag_unchecked" src="{% static 'vertical-timeline/img/unchecked.png' %}">&nbsp;&nbsp;Reference-Guided Assembly</h2>
+      <p id="ref"></p>
+      <p>Discription here</p>
+    <!-- cd-timeline-content --> 
+    
+    </div>
+  <!-- cd-timeline-block -->
+  
+  <div class="cd-timeline-block">
+    <div class="cd-timeline-img cd-picture"> <img src="{% static 'vertical-timeline/img/glyphicons-489-multiple-displays.png' %}" alt="Location"> </div>
+    <!-- cd-timeline-img -->
+    
+    <div class="cd-timeline-content">
+      <h2><img name="gp_checked" src="{% static 'vertical-timeline/img/checked.png' %}" style="display:None"><img name="gp_unchecked" src="{% static 'vertical-timeline/img/unchecked.png' %}">&nbsp;&nbsp;Gene Prediction and Assessment</h2>
+      <p id="gene_pred"></p>
+      <p>Discription here</p>
+    <!-- cd-timeline-content --> 
+    
+    </div>
+  <!-- cd-timeline-block -->
+  
+  <div class="cd-timeline-block">
+    <div class="cd-timeline-img cd-movie"> <img src="{% static 'vertical-timeline/img/glyphicons-530-list-alt.png' %}" alt="Location"> </div>
+    <!-- cd-timeline-img -->
+    
+    <div class="cd-timeline-content">
+      <h2><img name="go_checked" src="{% static 'vertical-timeline/img/checked.png' %}" style="display:None"><img name="go_unchecked" src="{% static 'vertical-timeline/img/unchecked.png' %}">&nbsp;&nbsp;GO Term Annotation</h2>
+      <p id="go"></p>
+      <p>Discription here</p>
+    <!-- cd-timeline-content --> 
+    
+    </div>
+  <!-- cd-timeline-block -->
+  
+  <div class="cd-timeline-block">
+    <div class="cd-timeline-img cd-location"> <img src="{% static 'vertical-timeline/img/glyphicons-692-tree-structure.png' %}" alt="Movie"> </div>
+    <!-- cd-timeline-img -->
+    
+    <div class="cd-timeline-content">
+      <h2><img name="tree_checked" src="{% static 'vertical-timeline/img/checked.png' %}" style="display:None"><img name="tree_unchecked" src="{% static 'vertical-timeline/img/unchecked.png' %}">&nbsp;&nbsp;Phylogenetic Tree</h2>
+      <p id="tree"></p>
+      <p>Discription here</p>
+    <!-- cd-timeline-content --> 
+    
+    </div>
+  <!-- cd-timeline-block --> 
+  
+  <div class="cd-timeline-block">
+    <div class="cd-timeline-img cd-location"> <img src="{% static 'vertical-timeline/img/glyphicons-88-log-book.png' %}" alt="Movie"> </div>
+    <!-- cd-timeline-img -->
+    
+    <div class="cd-timeline-content">
+      <h2><img name="parser_checked" src="{% static 'vertical-timeline/img/checked.png' %}" style="display:None"><img name="parser_unchecked" src="{% static 'vertical-timeline/img/unchecked.png' %}">&nbsp;&nbsp;Parsing Result</h2>
+      <p id="parser"></p>
+      <p>Discription here</p>
+    <!-- cd-timeline-content --> 
+    
+    </div>
+  <!-- cd-timeline-block --> 
+  </div>
+  </div>
+  </div>
+  </div>
+  </div>
+  </div>
+  </div>
+</section>
+
+
+{% endblock content %}
+
+{% block scripts %}
+
+<script type="text/javascript" src="{% static 'vertical-timeline/js/modernizr.js' %}"></script>
+<script type="text/javascript">
+
+$(document).ready(function () {
+   retrieve(); 
+   
+   setInterval(function(){retrieve();}, 600000);  //update every 10 mins
+   var $timeline_block = $('.cd-timeline-block');
+
+    //hide timeline blocks which are outside the viewport
+    $timeline_block.each(function(){
+     
+            $(this).find('.cd-timeline-img, .cd-timeline-content').addClass('bounce-in');
+        
+    });
+
+    //on scolling, show/animate timeline blocks when enter the viewport
+    /*
+    $(window).on('scroll', function(){
+        $timeline_block.each(function(){
+            if( $(this).offset().top <= $(window).scrollTop()+$(window).height()*0.3 && $(this).find('.cd-timeline-img').hasClass('is-hidden') ) {
+                $(this).find('.cd-timeline-img, .cd-timeline-content').removeClass('is-hidden').addClass('bounce-in');
+            }
+        });
+    });
+    */
+}); 
+function retrieve() {
+    
+    
+    $.ajax({
+                type: 'GET',
+                url: "./retrieve",
+                dataType: "json",
+                error: function () {
+                    // do nothing
+                },
+                success: function (data) {
+                    if((data['total_status']=="SUCCESSFUL")||(data['total_status']=="FAILED"))
+                    {
+                        //window.location.reload();
+                        window.location.replace("./report");
+                    };
+                    $("#total_status").text("Total Status:"+data['total_status']);
+                    $("#qc").text(data['quality_check']);
+                    $("#denovo").text(data['a5_status']);
+                    $("#ref").text(data['ragout_status']);
+                    $("#gene_pred").text(data['gene_prediction_status']);
+                    $("#go").text(data['go_status']);
+                    $("#tree").text(data['tree_status']);
+                    $("#parser").text(data['parsing_status']);
+                    if(data['quality_check']=="SUCCESSFUL")
+                    {
+                        $("img[name='qc_unchecked']").css("display", "none");
+                        $("img[name='qc_checked']").css("display", "inline");
+                        //$("img[name='qc']").toggle();
+                    
+                    };
+                    if(data['a5_status']=="SUCCESSFUL")
+                    {
+                        $("img[name='a5_unchecked']").css("display", "none");
+                        $("img[name='a5_checked']").css("display", "inline");
+                        //$("img[name='qc']").toggle();
+                    
+                    };
+                    if(data['ragout_status']=="SUCCESSFUL")
+                    {
+                        $("img[name='rag_unchecked']").css("display", "none");
+                        $("img[name='rag_checked']").css("display", "inline");
+                        //$("img[name='qc']").toggle();
+                    
+                    };
+                    if(data['gene_prediction_status']=="SUCCESSFUL")
+                    {
+                        $("img[name='gp_unchecked']").css("display", "none");
+                        $("img[name='gp_checked']").css("display", "inline");
+                        //$("img[name='qc']").toggle();
+                    
+                    };
+                    if(data['go_status']=="SUCCESSFUL")
+                    {
+                        $("img[name='go_unchecked']").css("display", "none");
+                        $("img[name='go_checked']").css("display", "inline");
+                        //$("img[name='qc']").toggle();
+                    
+                    };
+                    if(data['tree_status']=="SUCCESSFUL")
+                    {
+                        $("img[name='tree_unchecked']").css("display", "none");
+                        $("img[name='tree_checked']").css("display", "inline");
+                        //$("img[name='qc']").toggle();
+                    
+                    };
+                     if(data['parsing_status']=="SUCCESSFUL")
+                    {
+                        $("img[name='parser_unchecked']").css("display", "none");
+                        $("img[name='parser_checked']").css("display", "inline");
+                        //$("img[name='qc']").toggle();
+                    
+                    };
+                        
+                }
+            });
+    
+    /*
+    $.getJSON('/status/{{task_id}}',function(ret){
+              //$('#test').append(ret.go_status + '<br>');
+              // 也可以用 ret['twz']
+    });*/
+}
+</script> 
+{% endblock %}
