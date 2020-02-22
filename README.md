@@ -41,11 +41,11 @@ A multi-core server with at least 128GB RAM is recommended when running the enti
     5.4. `pip install -r pip_ngs_requirements.txt`  
 6. Install dependency  
     6.1. Install other required tools as follows in `/usr/local/NGSTools`  
-    EVidenceModeler-1.1.1, interproscan-5.25-64.0, eggnog-mapper, genemark_suite_linux_64, MetaGeneMark_linux_64, Ragout, orthomclSoftware-v2.0.9, GraphlAn  
+    EVidenceModeler-1.1.1, interproscan-5.25-64.0, eggnog-mapper, genemark_suite_linux_64, MetaGeneMark_linux_64, Ragout, orthomclSoftware-v2.0.9, GraphlAn, Gblocks_Linux64_0.91b   
     6.2. Run `/usr/local/NGSTools/Ragout/scripts/install-sibelia.py` and install Sibelia in `/usr/local/bin`  
 7. Create /data and put required datasets here  
     7.1. `mkdir /data`  
-    7.2. Download and decompress datasets:  bacteria_db, busco_reference, cDNA, kraken_db_hsa_mmu_rno, pfam_31, blast_nr_db  
+    7.2. Download and uncompress datasets:  bacteria_db, busco_reference, cDNA, kraken_db_hsa_mmu_rno, pfam_31, blast_nr_db  
     7.3. cp -aR bacteria_db busco_reference cDNA kraken_db_hsa_mmu_rno pfam_31 nr /data  
     7.4. Combine partial files and decompress `Bacteria_RefSeq.gi.gz` in `src/supplement_code`  
         7.4.1. `cat Bacteria_RefSeq.gi.gz.part.* >  Bacteria_RefSeq.gi.gz`  
