@@ -128,6 +128,7 @@ master       = true
 processes    = 2
 # the socket (use the full path to be safe
 socket       = /run/MiDSystem/django.sock
+chmod-socket = 666
 # clear environment on exit
 vacuum       = true
 ```
