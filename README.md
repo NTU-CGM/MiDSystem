@@ -15,7 +15,7 @@ A multi-core server with at least 128GB RAM is recommended when running the enti
     2.4. `conda config --add channels conda-forge`  
     2.5. `conda config --add channels r`  
 3. Install conda packages (Add marks in any package which is reported conflict.)  
-    3.1. `cd bac_denovo`  
+    3.1. `cd ~/MiDSystem`  
     3.2. `conda create -n ngs --file conda_ngs_requirements.txt`  
     3.3. `conda create -n ngs_p2 --file conda_ngs_p2_requirements.txt`  
 4. Install MySQL  
@@ -60,40 +60,38 @@ A multi-core server with at least 128GB RAM is recommended when running the enti
     8.3. CREATE USER '[USER_ID]'@'localhost' IDENTIFIED BY '[PASSWORD]';  
     8.4. GRANT ALL PRIVILEGES ON `djangodb`.* TO '[USER_ID]'@'localhost';  
     8.5. GRANT ALL ON *.* TO 'orthomcl'@'localhost' IDENTIFIED BY 'orthoMCL' WITH GRANT OPTION;  
-    8.6. `cd ~/bac_denovo/src; source activate ngs; python manage.py migrate`  
+    8.6. `cd ~/MiDSystem/src; source activate ngs; python manage.py migrate`  
 9. Run development server  
     9.1. `nohup python manage.py runserver 172.16.0.176:8000 > nohup_ruserver.out &`  
     9.2. `nohup python manage.py qcluster > nohup_qcluster.out &`  
 10. Deploy a production server (Optional)  
     10.1. Install Nginx  
         10.1.1. `sudo yum install nginx`  
-        10.1.2. Tmpfiles.d configuration  
-        10.1.3. `sudo echo 'd /run/MiDSystem 0775 midsystem nginx' > /etc/tmpfiles.d/MiDSystem.conf`  
-        10.1.4. Reboot and see if the folder /run/MiDSystem exists  
-        10.1.5. Create a new configuration file in /etc/nginx/conf.d/MiDSystem.conf with following contents (root permission required):  
+        10.1.2. `mkdir -m 775 ~/miDSystem/tmp; sudo chown midsystem:nginx ~/miDSystem/tmp`  
+        10.1.3. Create a new configuration file in /etc/nginx/conf.d/MiDSystem.conf with following contents (root permission required):  
         
 ```
 # Upstream Django setting; the socket nginx connects to
 upstream MiDSystem-django {
-    server unix:///run/MiDSystem/django.sock;
+    server unix:///home/midsystem/MiDSystem/tmp/django.sock;
 }
 
 server {
     listen      8000;
     # listen      443 default ssl;
 
-    server_name midsystem.cgm.ntu.edu.tw;
+    server_name YOUR_URL;
     charset     utf-8;
 
     client_max_body_size 20G;  # max upload size
     keepalive_timeout 1440;
 
     location /static {
-        alias /home/midsystem/bac_denovo/src/assets;
+        alias /home/midsystem/MiDSystem/src/assets;
     }
     
     location  /robots.txt {
-        alias  /home/midsystem/bac_denovo/src/assets/robots.txt;
+        alias  /home/midsystem/MiDSystem/src/assets/robots.txt;
     }
 
     # Finally, send all non-media requests to the Django server.
@@ -104,9 +102,9 @@ server {
     }
 }
 ```
-
-        10.1.6. `sudo systemctl enable nginx.service; sudo systemctl start nginx.service`  
-
+    
+        10.1.4. `sudo systemctl enable nginx.service; sudo systemctl start nginx.service`  
+    
     10.2. Install uWSGI module  
         10.2.1. `pip install uwsgi` (under the ngs virtualenv)  
         10.2.2. `sudo mkdir /etc/uwsgi`  
@@ -114,10 +112,10 @@ server {
 
 ```
 [uwsgi]
-chdir        = /home/midsystem/bac_denovo/src
+chdir        = /home/midsystem/MiDSystem/src
 # Django's wsgi file
-module       = bac_denovo.wsgi:application
-env          = DJANGO_SETTINGS_MODULE=bac_denovo.settings.production
+module       = MiDSystem.wsgi:application
+env          = DJANGO_SETTINGS_MODULE=MiDSystem.settings.production
 # the virtualenv (full path)
 virtualenv   = /home/midsystem/miniconda3/envs/ngs
 
@@ -126,19 +124,22 @@ virtualenv   = /home/midsystem/miniconda3/envs/ngs
 master       = true
 # maximum number of worker processes
 processes    = 2
-# the socket (use the full path to be safe
-socket       = /run/MiDSystem/django.sock
-chmod-socket = 666
+# the socket
+socket       = /home/midsystem/MiDSystem/tmp/django.sock
+# with appropriate permissions
+chmod-socket = 664
+uid          = b01901110
+gid          = nginx
 # clear environment on exit
 vacuum       = true
 ```
 
     10.3. Django settings  
         10.3.1. Add Django settings module while sourcing the environment  
-        10.3.2. `echo 'export DJANGO_SETTINGS_MODULE="bac_denovo.settings.production"' > ~/miniconda3/envs/ngs/etc/conda/activate.d/django_env_var.sh`  
+        10.3.2. `echo 'export DJANGO_SETTINGS_MODULE="MiDSystem.settings.production"' > ~/miniconda3/envs/ngs/etc/conda/activate.d/django_env_var.sh`  
         10.3.3. `echo 'unset DJANGO_SETTINGS_MODULE' > ~/miniconda3/envs/ngs/etc/conda/deactivate.d/django_env_var.sh`  
         10.3.4. Create a Django superuser  
-        10.3.5. `cd ~/bac_denovo/src; python manage.py createsuperuser`  
+        10.3.5. `cd ~/MiDSystem/src; python manage.py createsuperuser`  
 
     10.4. Make MiDSystem as a systemd service  
         10.4.1. Under `/usr/lib/systemd/system` create `MiDSystem.service` with following contains (root permission required):  
@@ -162,5 +163,7 @@ NotifyAccess=all
 [Install]
 WantedBy=multi-user.target
 ```
-
+    
         10.4.2. `sudo systemctl enable MiDSystem.service; sudo systemctl start MiDSystem.service`  
+        10.4.3. `cd ~/MiDSystem/src; source activate ngs; python manage.py qcluster > nohup_qcluster.out 2>&1 &`  
+
