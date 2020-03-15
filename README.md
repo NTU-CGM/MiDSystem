@@ -19,7 +19,7 @@ A multi-core server with at least 128GB RAM is recommended when running the enti
     3.2. `conda create -n ngs --file conda_ngs_requirements.txt`  
     3.3. `conda create -n ngs_p2 --file conda_ngs_p2_requirements.txt`  
 4. Install MySQL  
-    4.1. `sudo yum install mariadb mariadb-devel mariadb-libs mariadb-server cmake` (optional: phpMyAdmin httpd httpd-tools httpd-manual)  
+    4.1. `sudo yum install mariadb mariadb-devel mariadb-libs mariadb-server cmake php php-pear php-cli php-mbstring` (optional: phpMyAdmin httpd httpd-tools httpd-manual)  
     4.2. `sudo systemctl enable mariadb.service`  
     4.3. `sudo systemctl start mariadb.service`  
     4.4. Setup mariadb configure file  
@@ -35,9 +35,10 @@ A multi-core server with at least 128GB RAM is recommended when running the enti
         4.6.4. L394: max_input_time = -1  
         4.6.5. L405: memory_limit = 64G  
         4.6.6. L800: upload_max_filesize = 10G  
-    4.7. Set allowed IPs in `/etc/httpd/conf.d/phpMyAdmin.conf` (optional)  
-    4.8. `sudo systemctl start httpd.service` (optional)  
-    4.9. Import pipeline_bac_species.sql into the database  
+    4.7. `pear install channel://pear.php.net/Console_ProgressBar-0.5.2beta`
+    4.8. Set allowed IPs in `/etc/httpd/conf.d/phpMyAdmin.conf` (optional)  
+    4.9. `sudo systemctl start httpd.service` (optional)  
+    4.10. Import pipeline_bac_species.sql into the database  
 5. Install pip packages in ngs and ngs_p2 environments (Add marks in any package which is reported conflict.)  
     5.1. `source activate ngs_p2`  
     5.2. `pip install -r pip_ngs_p2_requirements.txt`  
