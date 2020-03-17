@@ -19,7 +19,7 @@ A multi-core server with at least 128GB RAM is recommended when running the enti
     3.2. `conda create -n ngs --file conda_ngs_requirements.txt`  
     3.3. `conda create -n ngs_p2 --file conda_ngs_p2_requirements.txt`  
 4. Install MySQL  
-    4.1. `sudo yum install mariadb mariadb-devel mariadb-libs mariadb-server cmake php php-pear php-cli php-mbstring` (optional: phpMyAdmin httpd httpd-tools httpd-manual)  
+    4.1. `sudo yum install mariadb mariadb-devel mariadb-libs mariadb-server cmake php php-pear php-cli php-mbstring gnuplot` (optional: phpMyAdmin httpd httpd-tools httpd-manual)  
     4.2. `sudo systemctl enable mariadb.service`  
     4.3. `sudo systemctl start mariadb.service`  
     4.4. Setup mariadb configure file  
