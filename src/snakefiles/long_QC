@@ -1,0 +1,69 @@
+##Snakemake file before running Unicycler
+include: 'snake_based_paths'
+
+from signal import signal, SIGPIPE, SIG_DFL
+signal(SIGPIPE, SIG_DFL)
+
+if HYBRID == '1':
+    rule all:
+        input:
+            user_root+"longqc/long_trimmed.fastq",
+            user_root+"fastqc/R1_fastqc.html",
+            user_root+"trimmomatic/R1.trimmed.fastq",
+            user_root+"trimmomatic/fastqc/R1.trimmed_fastqc.html"
+else:
+    rule all:
+        input:
+            user_root+"longqc/long_trimmed.fastq"
+
+#fastqc and multiqc for short reads
+if HYBRID == '1':
+    rule fast_multi:
+        input:
+            user_root+"raw/R1.fastq",
+            user_root+"raw/R2.fastq"
+        output:
+            user_root+"fastqc/R1_fastqc.html",
+            user_root+"fastqc/R2_fastqc.html",
+            user_root+"multiqc/multiqc_report.html",
+        shell:
+            "fastqc {input} -o "+user_root+"fastqc;"       
+            "multiqc -o "+user_root+"multiqc "+user_root+"fastqc/ > "+user_root+"multiqc/multiqc_before_trim.log 2>&1;"           
+        
+    #trimmomatic
+    rule trimmomatic:
+        input:
+            user_root+"raw/R1.fastq",
+            user_root+"raw/R2.fastq"
+        output:
+            user_root+"trimmomatic/R1.trimmed.fastq",
+            user_root+"trimmomatic/R1.trimmed_unpaired.fastq",
+            user_root+"trimmomatic/R2.trimmed.fastq", 
+            user_root+"trimmomatic/R2.trimmed_unpaired.fastq"
+            
+        shell:   
+            "trimmomatic PE -threads 22 -phred33 {input} {output} ILLUMINACLIP:{SUPPLEMENT_APP_BIN}TruSeq3-PE.fa:2:30:10 SLIDINGWINDOW:4:20 MINLEN:80 > "+user_root+"trimmomatic/trimmomatic.log 2>&1;"
+            
+    rule fast_multi_after_trim:
+        input:
+            user_root+"trimmomatic/R1.trimmed.fastq",
+            user_root+"trimmomatic/R2.trimmed.fastq"
+        output:
+            user_root+"trimmomatic/fastqc/R1.trimmed_fastqc.html",
+            user_root+"trimmomatic/fastqc/R2.trimmed_fastqc.html",
+            user_root+"trimmomatic/multiqc/multiqc_report.html",
+        shell:
+            "fastqc {input} -o "+user_root+"trimmomatic/fastqc;"
+            "multiqc -o "+user_root+"trimmomatic/multiqc "+user_root+"trimmomatic/fastqc/ > "+user_root+"trimmomatic/multiqc/multiqc_after_trim.log 2>&1;"
+
+rule longqc:
+    input:
+        user_root+"raw/long.fastq"
+    output:
+        user_root+"longqc/long_trimmed.fastq"
+    shell:
+        "source activate ngs_long;"
+        "rm -rf "+user_root+"longqc;"
+        "python {NON_CONDA_APP_BIN}LongQC/longQC.py sampleqc -x "+longqc_platform+" --ncpu 22 -o "+user_root+"longqc --trim_output {output} {input};"
+        "source activate ngs;"
+        

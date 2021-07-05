@@ -1,5 +1,4 @@
 from django.db import models
-import datetime
 # Create your models here.
 
 class meta_ip_log(models.Model):

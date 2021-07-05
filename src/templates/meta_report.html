@@ -105,7 +105,7 @@ div.tab_container .tab_content h2 {
 </style>
 
 <!-- Top container -->
-<div class="w3-bar w3-top w3-large" style="z-index:4;background-color:#ecd9e5">
+<div class="w3-bar w3-top w3-large" style="z-index:4;background-color:#fff1cf">
   <button class="w3-bar-item w3-button w3-hide-large w3-hover-none w3-hover-text-light-grey" onclick="w3_open();"><i class="fa fa-bars"></i>  Menu</button>
   <span class="w3-bar-item w3-left">Metagenomics Pipeline</span>
   <span class="w3-bar-item w3-right"></span>
@@ -122,10 +122,11 @@ div.tab_container .tab_content h2 {
         <a href="#" class="w3-bar-item w3-button w3-padding" onclick="loading(this.name)" name="summary_result"><img src="{% static 'vertical-timeline/img/glyphicons-30-notes-2.png' %}" height="14" width="15">  Overview</a>
         <a href="#" class="w3-bar-item w3-button w3-padding" onclick="loading(this.name)" name="qc_result"><img src="{% static 'vertical-timeline/img/glyphicons-28-search.png' %}" height="14" width="15">  Quality Control</a>
         <a href="#" class="w3-bar-item w3-button w3-padding" onclick="loading(this.name)" name="a5_result"><img src="{% static 'vertical-timeline/img/glyphicons-111-align-left.png' %}" height="14" width="15"> Assembly</a>
-        <a href="#" class="w3-bar-item w3-button w3-padding" onclick="loading(this.name)" name="taxo_result"><img src="{% static 'vertical-timeline/img/glyphicons-320-sort.png' %}" height="14" width="15"> Taxonomic Abundance</a>        
-        <a href="#" class="w3-bar-item w3-button w3-padding" onclick="loading(this.name)" name="pred_result"><img src="{% static 'vertical-timeline/img/glyphicons-489-multiple-displays.png' %}" height="14" width="15">  Gene Predict/Cluster</a>
+        <a href="#" class="w3-bar-item w3-button w3-padding" onclick="loading(this.name)" name="taxo_result"><img src="{% static 'vertical-timeline/img/glyphicons-43-pie-chart.png' %}" height="14" width="15"> Taxonomic Abundance</a>        
+        <a href="#" class="w3-bar-item w3-button w3-padding" onclick="loading(this.name)" name="pred_result"><img src="{% static 'vertical-timeline/img/glyphicons-489-multiple-displays.png' %}" height="14" width="15">  Gene Prediction/Clustering</a>
         <a href="#" class="w3-bar-item w3-button w3-padding" onclick="loading(this.name)" name="function_result"><img src="{% static 'vertical-timeline/img/glyphicons-530-list-alt.png' %}" height="14" width="15">  Functional Annotation and Abundance</a>
-        <a href="#" class="w3-bar-item w3-button w3-padding" onclick="loading(this.name)" name="domain_result"><img src="{% static 'vertical-timeline/img/glyphicons-186-screenshot.png' %}" height="14" width="15">  Domain Mapping</a>       
+        <a href="#" class="w3-bar-item w3-button w3-padding" onclick="loading(this.name)" name="domain_result"><img src="{% static 'vertical-timeline/img/glyphicons-186-screenshot.png' %}" height="14" width="15">  Domain Mapping</a>
+		<a href="#" class="w3-bar-item w3-button w3-padding" onclick="loading(this.name)" name="system_info"><img src="{% static 'vertical-timeline/img/glyphicons-320-sort.png' %}" height="14" width="15">  System Info</a>
       </div>
     </nav>
 
@@ -152,6 +153,10 @@ div.tab_container .tab_content h2 {
                 <tr>
                     <td width="30%">Job ID</td>
                     <td>{{task_id}}</td>
+                </tr>
+                <tr>
+                    <td>MiDSystem version</td>
+                    <td>{{version}}</td>
                 </tr>
                 <tr>
                     <td>Submission time</td>
@@ -299,7 +304,7 @@ div.tab_container .tab_content h2 {
         <div class="w3-main" style="margin-left:260px;margin-top:43px;">
               <!-- Header -->
               <header class="w3-container" style="padding-top:22px">
-                <h4><b><img src="{% static 'vertical-timeline/img/glyphicons-320-sort.png' %}"> Taxonomic Abundance</b></h4>
+                <h4><b><img src="{% static 'vertical-timeline/img/glyphicons-43-pie-chart.png' %}"> Taxonomic Abundance</b></h4>
               </header>
 
               <div class="w3-panel w3-border" style="width:90%;">
@@ -497,8 +502,67 @@ div.tab_container .tab_content h2 {
                         </tbody>
                     </table>
               </div>
-              
         </div>
+    </div>
+	
+    <!--system_info-->
+    <div class="pipeline_result" id="system_info">
+        <div class="w3-main" style="margin-left:260px;margin-top:43px;">
+          <!-- Header -->
+          <header class="w3-container" style="padding-top:22px">
+            <h4><b><img src="{% static 'vertical-timeline/img/glyphicons-320-sort.png' %}"> System Info</b></h4>
+          </header>
+
+          <div class="w3-row-padding w3-margin-bottom">
+             <div class="w3-panel w3-border" style="width:90%;">
+               <p>The page provides information about the MiDSystem version, lists of third-party tools, and databases that were executed in this task.</p>
+             </div>
+          </div>
+		  
+		  <div class="w3-row-padding w3-margin-bottom">
+			<h5>MiDSystem Version</h5>
+			<table class="w3-table w3-card-4 w3-bordered w3-bordered w3-border w3-hoverable w3-white">
+			  <tr>
+				<td>{{version}}</td>
+			  </tr>
+			</table><br>
+			
+			<h5>List of Third-party Tools</h5>
+			<table class="w3-table w3-card-4 w3-bordered w3-bordered w3-border w3-hoverable w3-white">
+			  <tr>
+				<th>Tool Name</th>
+				<th>Version</th>
+				<th>Executing Function</th>
+			  </tr>
+			  {% autoescape off %}
+			    {% for tool_name, tool_ver, tool_func, tool_url in tools_list %}
+			    <tr>
+				  <td><a href="{{tool_url}}" target="_blank">{{tool_name}}</a></td>
+				  <td>{{tool_ver}}</td>
+				  <td>{{tool_func}}</td>
+			    </tr>
+				{% endfor %}
+			  {% endautoescape %}
+			</table><br>
+			
+			<h5>List of Databases</h5>
+			<table class="w3-table w3-card-4 w3-bordered w3-bordered w3-border w3-hoverable w3-white">
+			  <tr>
+				<th>Database Name</th>
+				<th>Released Version/Date</th>
+			  </tr>
+			  {% autoescape off %}
+			    {% for db_name, db_ver, db_url in databases_list %}
+			    <tr>
+				  <td><a href="{{db_url}}" target="_blank">{{db_name}}</a></td>
+				  <td>{{db_ver}}</td>
+			    </tr>
+				{% endfor %}
+			  {% endautoescape %}
+			</table>
+		  </div>
+        </div>
+    <!-- End system_info page content --> 
     </div>
               
     <div class="w3-main" style="margin-left:260px;margin-top:43px;">
@@ -508,12 +572,9 @@ div.tab_container .tab_content h2 {
                 Developed by Bioinformatics and Biostatistics Core Lab, Center of Genomic Medicine, National Taiwan University.
           </p>
         </div>
-        
-        
     </div>
     </div>
-    
-        
+	
     
 {% else %}   
     <div class="pipeline_result" id="failed_result">
@@ -534,6 +595,10 @@ div.tab_container .tab_content h2 {
                 <tr>
                     <td width="30%">Job ID</td>
                     <td>{{task_id}}</td>
+                </tr>
+                <tr>
+                    <td>MiDSystem version</td>
+                    <td>{{version}}</td>
                 </tr>
                 <tr>
                     <td>Submission time</td>

@@ -107,7 +107,8 @@ def run_data_preparation(source_path, destination_path, dict_urls):
         
         if len(dict_urls): # data come from URLs
             for new_file_name, url in dict_urls.items():
-                m1 = re.search('google\.com.+id=(.+)\&*', url)
+                # m1 = re.search('google\.com.+id=(.+)\&*', url) ## Retired
+                m1 = re.search('google\.com\/file\/d\/(.+)\/', url)
                 if m1:
                     # Use GoogleDriveDownloader module
                     id = m1.group(1)
@@ -763,6 +764,29 @@ def run_non_ref_pipeline(sfile_path,data_path,aug_flag,param):
         user.start_time=datetime.datetime.now()
         user.save(update_fields=['total_status','start_time'])
         
+        if not path.exists(data_path):
+            makedirs(data_path)
+        
+        # get lists of tools and databases that are conducted in this task
+        selected_col_name = 'non-ref'
+        
+        if aug_flag:
+            selected_col_name += '_aug'
+        else:
+            selected_col_name += '_gm'
+        
+        if(param['tree']['yesno']=="yes"): selected_col_name += '_tree'
+        
+        tmp_df = pd.read_csv(settings.TOOLS_LIST, sep="\t", engine='python')
+        tools_df = tmp_df.loc[tmp_df[selected_col_name]==1][tmp_df.columns[:4]]
+        tools_df.to_csv(data_path+'/tools_list.tsv', sep="\t", index=False)
+        tmp_df = pd.read_csv(settings.DATABASES_LIST, sep="\t", engine='python')
+        databases_df = tmp_df.loc[tmp_df[selected_col_name]==1][tmp_df.columns[:3]]
+        databases_df.to_csv(data_path+'/databases_list.tsv', sep="\t", index=False)
+        
+        # get MiDSystem version
+        with open(data_path+'/MiDSystem.version', 'w') as fp:
+            fp.write(settings.VERSION)
         
         # start data preparation
         user.data_preparation_status="RUNNING"
@@ -961,6 +985,33 @@ def run_pipeline(sfile_path,data_path,aug_flag,param):
         user.start_time=datetime.datetime.now()
         user.save(update_fields=['total_status','start_time'])
         
+        if not path.exists(data_path):
+            makedirs(data_path)
+        
+        # get lists of tools and databases that are conducted in this task
+        selected_col_name = 'ref'
+        
+        if aug_flag:
+            selected_col_name += '_aug'
+        else:
+            selected_col_name += '_gm'
+        
+        if(param['tree']['yesno']=="yes"): selected_col_name += '_tree'
+        
+        tmp_df = pd.read_csv(settings.TOOLS_LIST, sep="\t", engine='python')
+        tools_df = tmp_df.loc[tmp_df[selected_col_name]==1][tmp_df.columns[:4]]
+        tools_df.to_csv(data_path+'/tools_list.tsv', sep="\t", index=False)
+        tmp_df = pd.read_csv(settings.DATABASES_LIST, sep="\t", engine='python')
+        databases_df = tmp_df.loc[tmp_df[selected_col_name]==1][tmp_df.columns[:3]]
+        databases_df.to_csv(data_path+'/databases_list.tsv', sep="\t", index=False)
+        
+        # get MiDSystem version
+        with open(data_path+'/MiDSystem.version', 'w') as fp:
+            fp.write(settings.VERSION)
+        
+        # start data preparation
+        user.data_preparation_status="RUNNING"
+        user.save(update_fields=['data_preparation_status'])
         
         # start data preparation
         user.data_preparation_status="RUNNING"
@@ -1178,9 +1229,3 @@ def run_pipeline(sfile_path,data_path,aug_flag,param):
     [mail], fail_silently=True)
     
     return 0
-
-
-    
-def order_fruit(num_fruit):
-    time.sleep(num_fruit*30)   
-    return '%s_%s' % ("sleep", num_fruit)

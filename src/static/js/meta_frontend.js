@@ -5,6 +5,7 @@ $(document).ready(function () {
     $("#upload_button").hide();
     $("#url_upload").hide();
     $("#fin_upload").hide();
+    $("#submission_panel").hide();
     
     $('#re_enter').bind("cut copy paste", function(e) {
         e.preventDefault();
@@ -16,7 +17,7 @@ $(document).ready(function () {
     
     var csrftoken = getCookie('csrftoken');
     var upload_id = Sha256.hash(Math.random());
- 	var uploadfileObj = $("#fileuploader").uploadFile({
+     var uploadfileObj = $("#fileuploader").uploadFile({
         url:"/data_upload",
         multiple:true,
         dragDrop:false,
@@ -125,7 +126,7 @@ $(document).ready(function () {
                 upload_files_stat[data['uploadfile_type1']] = false;
             }
         }
-	});
+    });
     
     $("#upload_button").click(function()
     {
@@ -256,12 +257,21 @@ $("input[name='rad_upload_method']").change(function(){
     
 });
 
+$("#accept_privacy_statement").change(function(){
+    var check_val;
+    check_val = $("#accept_privacy_statement:checked").val();
+    if(check_val == "accept"){
+        $("#submission_panel").show();
+    }
+    else {
+        $("#submission_panel").hide();
+    }
+});
+
 function validateEmail(email) {
   var re = /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
   return re.test(email);
 };
-
-
 
 $("#submit").click(function() { 
     if(!validateEmail($("#email").val()))
@@ -274,7 +284,10 @@ $("#submit").click(function() {
         alert("Email re-enter not matched!");
         return false;
     }    
-
-
+    if($("#accept_privacy_statement:checked").val() != "accept")
+    {
+        alert("Must accept the Privacy Statement of MiDSystem!");
+        return false;
+    }
 
 });

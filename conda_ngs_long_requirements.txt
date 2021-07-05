@@ -1,0 +1,39 @@
+# This file may be used to create an environment using:
+# $ conda create --name <env> --file <this file>
+# platform: linux-64
+_libgcc_mutex=0.1=conda_forge
+_openmp_mutex=4.5=1_gnu
+bcftools=1.9=h68d8f2e_9
+bzip2=1.0.8=h7f98852_4
+ca-certificates=2021.5.30=ha878542_0
+certifi=2018.8.24=py35_1001
+curl=7.61.0=h93b3f91_2
+edlib=1.2.3=h2d50403_1
+gsl=2.5=h294904e_1
+htslib=1.9=h47928c2_5
+krb5=1.14.6=0
+libblas=3.9.0=9_openblas
+libcblas=3.9.0=9_openblas
+libdeflate=1.0=h14c3975_1
+libgcc-ng=9.3.0=h2828fa1_19
+libgfortran-ng=9.3.0=hff62375_19
+libgfortran5=9.3.0=hff62375_19
+libgomp=9.3.0=h2828fa1_19
+libopenblas=0.3.15=pthreads_h8fe5266_1
+libssh2=1.8.0=h1ad7b7a_1003
+libstdcxx-ng=9.3.0=h6de172a_19
+ncurses=5.9=10
+openssl=1.0.2u=h516909a_0
+perl=5.32.0=h36c2ea0_0
+pip=20.3.4=pyhd8ed1ab_0
+pysam=0.15.2=py35h0380709_0
+python=3.5.3=3
+python-edlib=1.2.3.post1=py35h470a237_0
+readline=6.2=0
+samtools=1.9=h46bd0b3_0
+setuptools=40.4.3=py35_0
+sqlite=3.13.0=1
+tk=8.5.19=2
+wheel=0.36.2=pyhd3deb0d_0
+xz=5.2.5=h516909a_1
+zlib=1.2.11=h516909a_1010

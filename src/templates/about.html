@@ -1,0 +1,85 @@
+{% extends 'base.html' %}
+{% block title %}Help{% endblock title %}
+{% block content %}
+{% load static %}
+
+<h2>About</h2>
+<div class="panel panel-success">
+  <div class="panel-heading">
+    <h3 class="panel-title">MiDSystem Update Logs</h3>
+  </div>
+  <div class="panel-body">
+      <table class="table table-striped table-condensed">
+        <thead>
+          <tr>
+            <th>Version</th>
+            <th>Description</th>
+          </tr>
+        </thead>
+        <tbody>
+		{% autoescape off %}
+		  {% for version, description in updates_list %}
+          <tr>
+            <td>{{version}}</td>
+            <td>{{description}}</td>
+          </tr>
+		  {% endfor %}
+		{% endautoescape %}
+        </tbody>
+     </table>
+  </div>
+</div>
+<div class="panel panel-info">
+  <div class="panel-heading">
+    <h3 class="panel-title">List of Third-party Tools Incorporated into MiDSystem</h3>
+  </div>
+  <div class="panel-body">
+      <table class="table table-striped table-condensed">
+        <thead>
+          <tr>
+            <th>Tool Name</th>
+            <th>Version</th>
+            <th>Executing Function</th>
+          </tr>
+        </thead>
+        <tbody>
+		{% autoescape off %}
+		  {% for tool_name, tool_ver, tool_func, tool_url in tools_list %}
+          <tr>
+            <td><a href="{{tool_url}}" target="_blank">{{tool_name}}</a></td>
+            <td>{{tool_ver}}</td>
+            <td>{{tool_func}}</td>
+          </tr>
+		  {% endfor %}
+		{% endautoescape %}
+        </tbody>
+     </table>
+  </div>
+</div>
+<div class="panel panel-warning">
+  <div class="panel-heading">
+    <h3 class="panel-title">List of Databases Incorporated into MiDSystem</h3>
+  </div>
+  <div class="panel-body">
+      <table class="table table-striped table-condensed">
+        <thead>
+          <tr>
+            <th>Database Name</th>
+            <th>Released Version/Date</th>
+          </tr>
+        </thead>
+        <tbody>
+		{% autoescape off %}
+		  {% for db_name, db_ver, db_url in databases_list %}
+          <tr>
+            <td><a href="{{db_url}}" target="_blank">{{db_name}}</a></td>
+            <td>{{db_ver}}</td>
+          </tr>
+		  {% endfor %}
+		{% endautoescape %}
+        </tbody>
+     </table>
+  </div>
+</div>
+
+{% endblock content %}

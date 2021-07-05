@@ -1,0 +1,27 @@
+/* Sticky footer styles
+-------------------------------------------------- */
+html {
+  position: relative;
+  min-height: 100%; }
+
+body {
+  /* Margin bottom by footer height */
+  margin-bottom: 60px;
+  font-size: 14px; }
+
+.footer {
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+  /* Set the fixed height of the footer here */
+  height: 60px;
+  background-color: #f5f5f5; }
+  @media screen and (max-width: 767px) {
+    .footer {
+      height: 100px; } }
+  .footer .container {
+    padding: 0 1em; }
+    .footer .container .text-muted {
+      margin: 1em 0px; }
+
+/*# sourceMappingURL=data:application/json;base64,eyJuYW1lcyI6IFtdLCAic291cmNlcyI6IFsibWFpbi5zY3NzIl0sICJtYXBwaW5ncyI6ICJBQUFBO3FEQUNxRDtBQUNyRCxBQUFBLElBQUksQ0FBQztFQUNELFFBQVEsRUFBRSxRQUFRO0VBQ2xCLFVBQVUsRUFBRSxJQUFJLEdBQ25COztBQUVELEFBQUEsSUFBSSxDQUFDO0VBQ0Qsb0NBQW9DO0VBQ3BDLGFBQWEsRUFBRSxJQUFJO0VBQ25CLFNBQVMsRUFBRSxJQUFJLEdBQ2xCOztBQUVELEFBQUEsT0FBTyxDQUFDO0VBQ0osUUFBUSxFQUFFLFFBQVE7RUFDbEIsTUFBTSxFQUFFLENBQUM7RUFDVCxLQUFLLEVBQUUsSUFBSTtFQUNYLDZDQUE2QztFQUM3QyxNQUFNLEVBQUUsSUFBSTtFQUlaLGdCQUFnQixFQUFFLE9BQU8sR0FPNUI7RUFWRyxNQUFNLENBQUMsTUFBTSxNQUFNLFNBQVMsRUFBRSxLQUFLO0lBTnZDLEFBQUEsT0FBTyxDQUFDO01BT0EsTUFBTSxFQUFFLEtBQUssR0FTcEI7RUFoQkQsQUFVSSxPQVZHLENBVUgsVUFBVSxDQUFDO0lBQ1AsT0FBTyxFQUFFLEtBQUssR0FJakI7SUFmTCxBQVlRLE9BWkQsQ0FVSCxVQUFVLENBRU4sV0FBVyxDQUFDO01BQ1IsTUFBTSxFQUFFLE9BQU8sR0FDbEIiLCAidmVyc2lvbiI6IDMsICJmaWxlIjogIm1haW4uY3NzIn0=  */

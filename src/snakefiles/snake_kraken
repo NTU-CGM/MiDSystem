@@ -8,15 +8,9 @@ rule run_kraken_command:
         user_root+"kraken/R2.fastq"
     output:
         user_root+"kraken/classified.fa",
-        user_root+"kraken/exclused_seq_id.txt",
         user_root+"raw/R1.fastq",
         user_root+"raw/R2.fastq",
     shell:
         "cd "+user_root+"kraken;"
-        "cp {SUPPLEMENT_APP_BIN}kraken_command.sh .;"
-        "chmod +x kraken_command.sh;"
-        "./kraken_command.sh;"
-  
-
-
-
+        "kraken --fastq-input --classified-out classified.fa --threads 22 --db {KRAKEN_DB} --paired R1.fastq R2.fastq 1> /dev/null 2> kraken.summary;"
+        "python {SUPPLEMENT_APP_BIN}kraken_exclude_seq.py -c "+user_root+"kraken/classified.fa -I "+user_root+"kraken/R1.fastq -O "+user_root+"raw/R1.fastq -i "+user_root+"kraken/R2.fastq -o "+user_root+"raw/R2.fastq;"

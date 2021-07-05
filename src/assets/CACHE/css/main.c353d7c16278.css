@@ -1,0 +1,33 @@
+/* Sticky footer styles
+-------------------------------------------------- */
+/* line 3, static/css/main.scss */
+html {
+  position: relative;
+  min-height: 100%; }
+
+/* line 8, static/css/main.scss */
+body {
+  /* Margin bottom by footer height */
+  margin-bottom: 60px;
+  font-size: 14px; }
+
+/* line 14, static/css/main.scss */
+.footer {
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+  /* Set the fixed height of the footer here */
+  height: 60px;
+  background-color: #f5f5f5; }
+  @media screen and (max-width: 767px) {
+    /* line 14, static/css/main.scss */
+    .footer {
+      height: 100px; } }
+  /* line 24, static/css/main.scss */
+  .footer .container {
+    padding: 0 1em; }
+    /* line 26, static/css/main.scss */
+    .footer .container .text-muted {
+      margin: 1em 0px; }
+
+/*# sourceMappingURL=data:application/json;base64,eyJmaWxlIjogIm1haW4uY3NzIiwgInNvdXJjZXMiOiBbIi9zdGF0aWMvY3NzL21haW4uc2NzcyJdLCAibWFwcGluZ3MiOiAiQUFBQTtxREFDcUQ7O0FBQ3JELEFBQUEsSUFBSSxDQUFDO0VBQ0QsUUFBUSxFQUFFLFFBQVE7RUFDbEIsVUFBVSxFQUFFLElBQUksR0FDbkI7OztBQUVELEFBQUEsSUFBSSxDQUFDO0VBQ0Qsb0NBQW9DO0VBQ3BDLGFBQWEsRUFBRSxJQUFJO0VBQ25CLFNBQVMsRUFBRSxJQUFJLEdBQ2xCOzs7QUFFRCxBQUFBLE9BQU8sQ0FBQztFQUNKLFFBQVEsRUFBRSxRQUFRO0VBQ2xCLE1BQU0sRUFBRSxDQUFDO0VBQ1QsS0FBSyxFQUFFLElBQUk7RUFDWCw2Q0FBNkM7RUFDN0MsTUFBTSxFQUFFLElBQUk7RUFJWixnQkFBZ0IsRUFBRSxPQUFPLEdBTzVCO0VBVkcsTUFBTSxDQUFDLE1BQU0sTUFBTSxTQUFTLEVBQUUsS0FBSzs7SUFOdkMsQUFBQSxPQUFPLENBQUM7TUFPQSxNQUFNLEVBQUUsS0FBSyxHQVNwQjs7RUFoQkQsQUFVSSxPQVZHLENBVUgsVUFBVSxDQUFDO0lBQ1AsT0FBTyxFQUFFLEtBQUssR0FJakI7O0lBZkwsQUFZUSxPQVpELENBVUgsVUFBVSxDQUVOLFdBQVcsQ0FBQztNQUNSLE1BQU0sRUFBRSxPQUFPLEdBQ2xCIiwgIm5hbWVzIjogW10sICJ2ZXJzaW9uIjogM30=  */

@@ -1,0 +1,55 @@
+include: 'snake_based_paths'
+
+#start
+input_file_name = 'assembly.fasta'
+
+rule all:
+    input:
+        user_root+"genemark/raw_hmm_combined.mod",
+        user_root+"busco/protein/run_gm_protein/short_summary_gm_protein.txt",
+        user_root+"blast/spe_blastp.txt"
+
+rule genemark:
+    input:
+        user_root+"unicycler/"+input_file_name
+    output:
+        user_root+"genemark/raw_hmm_combined.mod",
+        user_root+"genemark/protein_combined.fasta",
+        user_root+"genemark/EVM.gff",
+        user_root+"genemark/cdna_seq.fasta"
+    shell:
+        "cd "+user_root+"genemark;"
+        "{NON_CONDA_APP_BIN}genemark_suite_linux_64/gmsuite/gmsn.pl --format GFF3 --name raw --combine --faa --fnn --clean --shape circular {input};"
+        "mv "+input_file_name+".faa protein_combined.fasta;"
+        "sed -i '/^[[:space:]]*$/d' protein_combined.fasta;"
+        "mv "+input_file_name+".gff3 assembly.gff;"
+        "{NON_CONDA_APP_BIN}EVidenceModeler-1.1.1/EvmUtils/misc/augustus_GFF3_to_EVM_GFF3.pl assembly.gff > EVM.gff;"
+        "mv "+input_file_name+".fnn cdna_seq.fasta;"
+        "sed -i '/^[[:space:]]*$/d' cdna_seq.fasta;"
+
+rule gm_busco:
+    input:
+        user_root+"genemark/protein_combined.fasta"
+    output:
+        user_root+"busco/protein/run_gm_protein/short_summary_gm_protein.txt"
+    params:
+        busco_ref=BUSCO_DB+"bacteria_odb9"
+    shell:
+        "cd "+user_root+"busco/protein;"
+        "busco -i {input} -l {params.busco_ref} -o gm_protein -e "+pred_assm_e_value+" -sp "+pred_assm_busco_species+" -m prot -c 4 -f 1> gm_busco.stdout.log 2> gm_busco.stderr.log;"
+        "busco_plot -wd run_gm_protein 1> gm_busco_plot.stdout.log 2> gm_busco_plot.stderr.log;"
+
+##remember the gi!!!!   
+##makeblastdb -in test_bacteria_odb9.fasta -dbtype prot -out test_bacteria_odb9.fasta   
+rule gm_blast:
+    input:
+        user_root+"genemark/protein_combined.fasta"
+    output:
+        user_root+"blast/spe_blastp.txt"
+    params:
+        blast_db=BLAST_DB+"nr",
+        blast_gi=SUPPLEMENT_APP_BIN+"Bacteria_RefSeq.gi"
+    shell:
+        "cd "+user_root+"blast;"
+        "blastp -query {input} -db {params.blast_db} -out {output} -evalue "+blast_e_value+" -num_threads 22 -outfmt '6 std qcovs staxids' -max_target_seqs 1 -gilist {params.blast_gi};"
+

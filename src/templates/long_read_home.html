@@ -1,0 +1,480 @@
+{% extends 'base.html' %}
+
+{% block title %}Long-read/Hybrid Assembly{% endblock title %}
+{% load static %}
+{% block content %}
+<style type="text/css">
+h4 {  
+      text-indent: 25px;  
+    }  
+.tab { margin-left: 40px; }
+
+</style>
+<form action="{% url 'long_read_result' %}" method="POST" target="_blank">
+{% csrf_token %}
+<h1>Long-read/Hybrid Assembly</h1>
+
+<div class="panel-group">
+  <div class="panel panel-danger">
+    <div class="panel-heading">Basic Information</div>
+    <div class="panel-body">
+        <p>please provide your basic information.</p>
+        <div class="form-group">
+            <label for="email">Email address:</label>
+            <input type="email" class="form-control" name="email" id="email" required />
+        </div>
+        <p>Please re-enter your Email for comfirmation.</p>
+        <div class="form-group">
+            <label for="email">Re-enter Email address:</label>
+            <input type="email" class="form-control" name="re_enter" id="re_enter" required />
+        </div>
+    
+    </div>
+  </div>
+  <div class="panel panel-info">
+    <div class="panel-heading">Step 1. Long-Read Upload</div>
+    <div class="panel-body">
+    <p>In this step, we will provide LongQC for long-read sequences to control the quality of your data uploaded below.</p>
+    Select a method for uploading files:<br />
+    <label class="radio-inline">
+        <input type="radio" name="rad_upload_method" id="from_browser" value="from_browser" checked />From browser
+    </label>
+    <label class="radio-inline">
+        <input type="radio" name="rad_upload_method" id="from_url" value="from_url" />From URLs
+    </label>
+    <input type="hidden" id="upload_method" name="upload_method" value="" />
+	
+	<p></p>
+	Select a platform/library for the uploaded reads:<br />
+    <label class="radio-inline">
+        <input type="radio" name="rad_long_read_platform" id="pb-rs2" value="pb-rs2" />PacBio RS II
+    </label>
+    <label class="radio-inline">
+        <input type="radio" name="rad_long_read_platform" id="pb-sequel" value="pb-sequel" />PacBio Sequel Series
+    </label>
+    <label class="radio-inline">
+        <input type="radio" name="rad_long_read_platform" id="pb-hifi" value="pb-hifi" />PacBio HiFi
+    </label>
+    <label class="radio-inline">
+        <input type="radio" name="rad_long_read_platform" id="ont-ligation" value="ont-ligation" />ONT Ligation
+    </label>
+    <label class="radio-inline">
+        <input type="radio" name="rad_long_read_platform" id="ont-rapid" value="ont-rapid" />ONT Rapid
+    </label>
+    <label class="radio-inline">
+        <input type="radio" name="rad_long_read_platform" id="ont-1dsq" value="ont-1dsq" />ONT 1Dsq
+    </label>
+	<input type="hidden" id="long_read_platform" name="long_read_platform" value="" />
+	<p></p>
+    <div class="reads_browser_upload">
+        <p>Please upload your sequencing files here. Only allow <b>.fastq</b>/<b>.fq</b> and <b>.gz</b> format. Allowed maximum size for each file: <b>20 GB</b>.</p>
+            <div id="fileuploader_2"></div>
+    </div>
+    
+    <div class="reads_url_upload">
+        <p>Please provide URLs (e.g., <b>http://</b>, <b>https://</b>, or <b>ftp://</b>) of your long-read sequencing file the field below. Using a share link from Google Drive is available. Only allow <b>.fastq</b>/<b>.fq</b> and <b>.gz</b> format.</p>
+        <label for="url_long">Long-read file:</label><div id="url_long_err" style="color:red;"></div>
+        <input type="url" class="form-control" id="url_long" name="url_long" style="margin-bottom: 10px;" />
+        <input type="hidden" id="confirmed_url_long" name="confirmed_url_long" value="" />
+        <div id="long_url_confirm_button" class="btn btn-primary start">
+                <i class="glyphicon glyphicon-cloud-download"></i>
+                <span>Confirm the URL</span>
+        </div>
+    
+	</div>
+	
+    </div>
+    <input type="hidden" id="upload_id" name="upload_id" value="" />
+  </div>
+  
+  <div id="fin_upload">
+  
+  <div class="panel panel-success">
+    <div class="panel-heading">Step 2. Short-Read Upload</div>
+    <div class="panel-body">
+    Does upload short-read sequences for the hybrid assembly?<br />
+    <label class="radio-inline">
+        <input type="radio" name="rad_use_hybrid" id="no_hybrid" value="0" checked />No
+    </label>
+    <label class="radio-inline">
+        <input type="radio" name="rad_use_hybrid" id="yes_hybrid" value="1" />Yes, use the hybrid assembly.
+    </label>
+    <input type="hidden" id="use_hybrid" name="use_hybrid" value="0" />
+	
+	<div id="short_upload">
+	  <p></p>
+      <p>In this step, we will provide FastQC, MultiQC, and Trimommatic for short-read sequences to control the quality of your data uploaded below.</p>
+      <div class="reads_browser_upload">
+          <p>Please upload your sequencing files here. Only allow <b>.fastq</b>/<b>.fq</b> and <b>.gz</b> format. Allowed maximum size for each file: <b>20 GB</b>.</p>
+          <div id="reads_upload_area">
+              <div id="fileuploader_1"></div>
+              <div id="upload_button" class="btn btn-primary start">
+                  <i class="glyphicon glyphicon-upload"></i>
+                  <span>Start upload</span>
+              </div>
+          </div>
+      </div>
+    
+      <div class="reads_url_upload">
+          <p>Please provide URLs (e.g., <b>http://</b>, <b>https://</b>, or <b>ftp://</b>) of your sequencing files in R1 and R2 fields. Using a share link from Google Drive is available. Only allow <b>.fastq</b>/<b>.fq</b> and <b>.gz</b> format.</p>
+          <label for="url_R1">R1:</label><div id="url_R1_err" style="color:red;"></div>
+          <input type="url" class="form-control" id="url_R1" name="url_R1" style="margin-bottom: 10px;" />
+          <input type="hidden" id="confirmed_url_R1" name="confirmed_url_R1" value="" />
+          <label for="url_R2">R2:</label><div id="url_R2_err" style="color:red;"></div>
+          <input type="url" class="form-control" id="url_R2" name="url_R2" style="margin-bottom: 10px;" />
+          <input type="hidden" id="confirmed_url_R2" name="confirmed_url_R2" value="" />
+          <div id="short_url_confirm_button" class="btn btn-primary start">
+            <i class="glyphicon glyphicon-cloud-download"></i>
+            <span>Confirm URLs</span>
+          </div>
+      </div>
+    </div>
+    </div>
+  </div>
+  
+  <div class="panel panel-info">
+    <div class="panel-heading">Step 3. <i>De Novo</i> Assembly</div>
+    <div class="panel-body">
+        In this step, we provide Unicycler for assembly and several tools for assessment of the assebled sequence.<br />
+        <label class="radio-inline">
+            <input type="radio" name="denovo_setting" id="denovo_default" value="default" checked />Default Settings
+        </label>
+        <label class="radio-inline">
+            <input type="radio" name="denovo_setting" id="denovo_custom" value="custom" />Customized
+        </label>
+        <table class="table table-striped table-condensed" name="denovo_table">
+            <thead>
+              <tr>
+                <th>Unicycler settings</th>
+                <th>Values</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>mode</td>
+                <td style="width: 60%">
+                    <label class="radio-inline">
+                        <input type="radio" name="unicycler_mode" value="conservative" />Conservative
+                    </label>
+                    <label class="radio-inline">
+                        <input type="radio" name="unicycler_mode" value="normal" checked />Normal
+                    </label>
+                    <label class="radio-inline">
+                        <input type="radio" name="unicycler_mode" value="bold" />Bold
+                    </label>
+                </td>
+              </tr>
+              
+            </tbody>
+        </table>
+        <table class="table table-striped table-condensed" name="denovo_table">
+            <thead>
+              <tr>
+                <th>Quast settings</th>
+                <th>Values</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>minimum contig-thresholds (>=0)</td>
+                <td style="width: 60%">
+                    <div class="form-group">
+                        <input type="number" class="form-control" name="contig_thresholds" value="1000" min="0" />
+                    </div>
+                </td>
+              </tr>
+            </tbody>
+        </table>
+        <table class="table table-striped table-condensed" name="denovo_table">
+            <thead>
+              <tr>
+                <th>BUSCO settings</th>
+                <th>Values</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>species</td>
+                <td style="width: 60%">
+                    <div class="form-group">
+                        <select class="form-control" name="busco_species">
+                            <option value="E_coli_K12">Escherichia coli</option>
+                            <option value="s_aureus">Staphylococcus aureus</option>
+                            <option value="thermoanaerobacter_tengcongensis">Thermoanaerobacter tengcongensis</option>
+                        </select>
+                    </div>
+                </td>
+              </tr>
+              <tr>
+                <td>e-value</td>
+                <td>
+                    <div class="form-group">
+                        <input type="text" name="e_value" class="form-control" value="1e-03" />
+                    </div>
+                </td>
+              </tr>
+            </tbody>
+        </table>
+        <table class="table table-striped table-condensed" name="denovo_table_hybrid_only">
+            <thead>
+              <tr>
+                <th>Bowtie2 settings</th>
+                <th>Values</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>--no-unal<br />(Suppress SAM records for reads that failed to align)</td>
+                <td style="width: 60%">
+                    <label class="radio-inline">
+                        <input type="radio" name="no_unal" value="No" />No
+                    </label>
+                    <label class="radio-inline">
+                        <input type="radio" name="no_unal" value="Yes" checked />Yes
+                    </label>
+                </td>
+              </tr>
+              
+            </tbody>
+        </table>
+    </div>
+  </div>
+    
+  <div class="panel panel-success">
+    <div class="panel-heading">Step 4. Gene Prediction</div>
+    <div class="panel-body">
+        In this step, please select one of the gene prediction tools below:<br />
+        <label class="radio-inline">
+            <input type="radio" name="gene_pred" id="tool_Genemark" value="GeneMark" checked />GeneMark
+        </label>
+        <label class="radio-inline">
+            <input type="radio" name="gene_pred" id="tool_Augustus" value="Augustus" />Augustus
+        </label>
+        <div id="augustus">
+            <label class="radio-inline tab">
+                <input type="radio" name="aug_setting" id="aug_default" value="default" checked />Default Augustus Settings
+            </label>
+            <label class="radio-inline tab">
+                <input type="radio" name="aug_setting" id="aug_custom" value="custom" />Customized Augustus
+            </label>
+        </div>
+        <table class="table table-striped table-condensed" name="pred_table">
+            <thead>
+              <tr>
+                <th>Augustus settings</th>
+                <th>Values</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>species</td>
+                <td style="width: 60%">
+                    <div class="form-group">
+                        <select class="form-control" name="aug_species">
+                            <option value="E_coli_K12">Escherichia coli</option>
+                            <option value="s_aureus">Staphylococcus aureus</option>
+                            <option value="thermoanaerobacter_tengcongensis">Thermoanaerobacter tengcongensis</option>
+                        </select>
+                    </div>
+                </td>
+              </tr>
+              <tr>
+                <td>strand</td>
+                <td style="width: 60%">
+                    <div class="form-group">
+                        <select class="form-control" name="aug_strand">
+                            <option value="both">Both</option>
+                            <option value="forward">Forward</option>
+                            <option value="backward">Backward</option>
+                        </select>
+                    </div>
+                </td>
+              </tr>
+            </tbody>
+        </table>
+        
+    </div>
+  </div>
+  <div class="panel panel-info">
+    <div class="panel-heading">Step 4(conti.). Predicted Gene Assessment</div>
+    <div class="panel-body">
+        In this step, we provide BUSCO and BLASTp for assessment.<br />
+        <label class="radio-inline">
+            <input type="radio" name="pred_assm_setting" id="pred_assm_default" value="default" checked />Default Settings
+        </label>
+        <label class="radio-inline">
+            <input type="radio" name="pred_assm_setting" id="pred_assm_custom" value="custom" />Customized
+        </label>
+        
+        <table class="table table-striped table-condensed" name="pred_assm_table">
+            <thead>
+              <tr>
+                <th>BUSCO settings</th>
+                <th>Values</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>species</td>
+                <td style="width: 60%">
+                    <div class="form-group">
+                        <select class="form-control" name="pred_assm_busco_species">
+                            <option value="E_coli_K12">Escherichia coli</option>
+                            <option value="s_aureus">Staphylococcus aureus</option>
+                            <option value="thermoanaerobacter_tengcongensis">Thermoanaerobacter tengcongensis</option>
+                        </select>
+                    </div>
+                </td>
+              </tr>
+              <tr>
+                <td>e-value</td>
+                <td>
+                    <div class="form-group">
+                        <input type="text" name="pred_assm_e_value" class="form-control" value="1e-03" />
+                    </div>
+                </td>
+              </tr>
+            </tbody>
+        </table>
+        <table class="table table-striped table-condensed" name="pred_assm_table">
+            <thead>
+              <tr>
+                <th>BLAST settings</th>
+                <th>Values</th>
+              </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>e-value</td>
+                    <td style="width: 60%">
+                        <div class="form-group">
+                            <input type="text tab" name="blast_e_value" id="blast_e_value" class="form-control" value="1E-5" />
+
+                        </div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+  </div>
+  <div class="panel panel-success">
+    <div class="panel-heading">Step 5. GO Term Annotation</div>
+    <div class="panel-body">
+        In this step, we provide InterProScan for GO term annotation<br />
+        <label class="radio-inline">
+            <input type="radio" name="go_setting" id="go_default" value="default" checked />Default Settings
+        </label>
+        <label class="radio-inline">
+            <input type="radio" name="go_setting" id="go_custom" value="custom" />Customized
+        </label>
+        <table class="table table-striped table-condensed" name="go_table">
+            <thead>
+              <tr>
+                <th>InterProScan settings</th>
+                <th>Values</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>file format</td>
+                <td style="width: 60%">
+                    <div class="checkbox">
+                      <label><input name="file_type" type="checkbox" value="tsv" checked disabled />tsv</label>
+                    </div>
+                    <div class="checkbox">
+                      <label><input name="file_type" type="checkbox" value="xml" />xml</label>
+                    </div>
+                    <div class="checkbox">
+                      <label><input name="file_type" type="checkbox" value="gff3" />gff3</label>
+                    </div>
+                    <div class="checkbox">
+                      <label><input name="file_type" type="checkbox" value="svg" />svg</label>
+                    </div>
+                    <div class="checkbox">
+                      <label><input name="file_type" type="checkbox" value="json" />json</label>
+                    </div>
+                    <div class="checkbox">
+                      <label><input name="file_type" type="checkbox" value="html" />html</label>
+                    </div>
+                    
+                </td>
+              </tr>
+            </tbody>
+        </table>
+        
+    </div>
+  </div>
+
+<div class="panel panel-info">
+<div class="panel-heading">Step 6. (Optional) Phylogenetic Tree</div>
+    <div class="panel-body">
+        The phylogenetic tree is optional.<br /> 
+        If you want to draw a tree, please select "Yes" and select at most 10 species. <br />
+        <p style="color:red">Note: It will take some time to load the species data if you choose "Yes."</p>
+        <label class="radio-inline">
+            <input type="radio" name="tree" id="no_tree" value="no_tree" checked />No
+        </label>
+        <label class="radio-inline">
+            <input type="radio" name="tree" id="yes_tree" value="yes_tree" />Yes, constructing a phylogenetic tree.
+        </label>
+        <p>Please provide the name for your sample that will be displayed on the tree:</p>
+        <p>Maximum size of a sample name cannot exceed 10 characters. Only A-Za-z0-9 and _ characters are allowed.</p>
+        <input type="text" name="tree_sample_name" id="tree_sample_name" class="form-control" value="my_sample" maxlength="10" />
+        <br />
+        <div id="selected_item"></div>
+        <img id="wait" src="{% static '/js/tree-multiselect/Rolling-1s-60px.gif' %}" alt="Loading">
+        <select id="demo" name="tree_select" multiple="multiple">
+        <!--
+          <option value="one" data-section="top" selected="selected" data-index="3">C++</option>
+          <option value="two" data-section="top" selected="selected" data-index="1">Python</option>
+          <option value="wow" data-section="JavaScript">test</option>
+          <option value="wow" data-section="JavaScript/Library/Popular">jQuery</option>-->
+            
+            
+            
+                      
+
+          <!--<option value="wow" data-section="JavaScript/Library">test2</option>
+          <option value="three" data-section="top" selected="selected" data-index="2">Ruby</option>
+          <option value="four" data-section="top">Swift</option>-->
+          
+        </select>
+    </div>
+</div>
+<div id="message">
+</div>
+
+<div class="panel panel-success">
+  <div class="panel-heading">Step 7. Privacy Statement</div>
+  <div class="panel-body">
+	MiDSystem NEVER collects and shares users' upload data and results with others. All data and metadata of one task will be removed automatically from the server without any copies after <b>7 days</b> of the report generated.
+	<p></p>
+	<input class="form-check-input" type="checkbox" name="accept_privacy_statement" id="accept_privacy_statement" value="accept" />
+	<label class="form-check-label" for="accept_privacy_statement">I have read the Privacy Statement of MiDSystem and accept MiDSystem to process my upload data.</label>
+  </div>
+</div>
+
+<div id="submission_panel">
+<div class="panel panel-info">
+  <div class="panel-heading">Step 8. Data submission</div>
+  <div class="panel-body">
+	<button class="btn btn-default btn-success" type="submit" id="submit">Submit</button>
+  </div>
+</div>
+</div>
+
+</div>
+</div>
+</form>
+{% endblock content %}
+{% block scripts %}
+<!--<script type="text/javascript" src="static/js/jquery.ztree.core.js"></script>
+<script type="text/javascript" src="static/js/jquery.ztree.excheck.js"></script>-->
+<script type="text/javascript" src="{% static '/js/jquery.tree-multiselect.min.js' %}"></script>
+<script src="//code.jquery.com/ui/1.11.4/jquery-ui.min.js"></script>
+<script type="text/javascript" src="{% static '/js/uploadfile/jquery.form.js' %}"></script>
+<script type="text/javascript" src="{% static '/js/get_cookie.js' %}"></script>
+<script type="text/javascript" src="{% static '/js/uploadfile/sha256.js' %}"></script>
+<script type="text/javascript" src="{% static '/js/uploadfile/jquery.uploadfile.js' %}"></script>
+<script type="text/javascript" src="{% static '/js/long_read_frontend.js' %}"></script>
+{%endblock%}

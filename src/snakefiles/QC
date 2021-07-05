@@ -34,7 +34,7 @@ rule trimmomatic:
         user_root+"trimmomatic/R2.trimmed_unpaired.fastq"
         
     shell:   
-        "trimmomatic PE -threads 15 -phred33 {input} {output} ILLUMINACLIP:{SUPPLEMENT_APP_BIN}TruSeq3-PE.fa:2:30:10 SLIDINGWINDOW:4:20 MINLEN:80 > "+user_root+"trimmomatic/trimmomatic.log 2>&1;"
+        "trimmomatic PE -threads 22 -phred33 {input} {output} ILLUMINACLIP:{SUPPLEMENT_APP_BIN}TruSeq3-PE.fa:2:30:10 SLIDINGWINDOW:4:20 MINLEN:80 > "+user_root+"trimmomatic/trimmomatic.log 2>&1;"
         
 rule fast_multi_after_trim:
     input:

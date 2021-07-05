@@ -9,6 +9,7 @@ $(document).ready(function () {
     $("#ref_url_upload").hide();
     $("#fin_upload").hide();
     $("#ref_upload").hide();
+    $("#submission_panel").hide();
     //$("table[name='pred_assm_table']").show();
     //$.fn.zTree.init($("#treeDemo"), setting, zNodes);
     /*
@@ -39,7 +40,7 @@ $(document).ready(function () {
     
     var csrftoken = getCookie('csrftoken');
     var upload_id = Sha256.hash(Math.random());
- 	var uploadfileObj1 = $("#fileuploader_1").uploadFile({
+     var uploadfileObj1 = $("#fileuploader_1").uploadFile({
         url:"/data_upload",
         multiple:true,
         dragDrop:false,
@@ -157,9 +158,9 @@ $(document).ready(function () {
                 upload_files_stat[data['uploadfile_type1']] = false;
             }
         }
-	});
+    });
     
- 	var uploadfileObj2 = $("#fileuploader_2").uploadFile({
+     var uploadfileObj2 = $("#fileuploader_2").uploadFile({
         url:"/data_upload",
         multiple:false,
         dragDrop:false,
@@ -178,7 +179,8 @@ $(document).ready(function () {
         showDelete:true,
         dynamicFormData: function() {
             var data = {'csrfmiddlewaretoken':csrftoken,
-                        'upload_id':upload_id
+                        'upload_id':upload_id,
+                        'uploadfile_ref':"reference"
                        };
             return data;
         },
@@ -217,7 +219,7 @@ $(document).ready(function () {
             $("input[name=rad_upload_method]").attr("disabled", false);
             upload_files_stat['ref'] = false;
         }
-	});
+    });
     
     $("#upload_button").click(function()
     {
@@ -476,6 +478,17 @@ $("input[name='rad_upload_method']").change(function(){
     
 });
 
+$("#accept_privacy_statement").change(function(){
+    var check_val;
+    check_val = $("#accept_privacy_statement:checked").val();
+    if(check_val == "accept"){
+        $("#submission_panel").show();
+    }
+    else {
+        $("#submission_panel").hide();
+    }
+});
+
 function validateEmail(email) {
   var re = /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
   return re.test(email);
@@ -502,5 +515,9 @@ $("#submit").click(function() {
         }     
 
     }
-
+    if($("#accept_privacy_statement:checked").val() != "accept")
+    {
+        alert("Must accept the Privacy Statement of MiDSystem!");
+        return false;
+    }
 });

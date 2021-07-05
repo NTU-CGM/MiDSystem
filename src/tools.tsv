@@ -1,0 +1,32 @@
+Tool Name	Version	Executing Function	URL	ref_gm_tree	ref_gm	ref_aug_tree	ref_aug	non-ref_gm_tree	non-ref_gm	non-ref_aug_tree	non-ref_aug	long_gm_tree	long_gm	long_aug_tree	long_aug	hybrid_gm_tree	hybrid_gm	hybrid_aug_tree	hybrid_aug	meta	meta_kraken
+A5-miseq	20160825	Genome Assembly	https://sourceforge.net/projects/ngopt/files/	1	1	1	1	1	1	1	1	0	0	0	0	0	0	0	0	1	1
+AUGUSTUS	3.2.3	Gene Prediction	http://bioinf.uni-greifswald.de/augustus/	0	0	1	1	0	0	1	1	0	0	1	1	0	0	1	1	0	0
+BLAST+	2.6.0	Genome Assessment, Gene Annotation, Gene Prediction Assessment	https://ftp.ncbi.nlm.nih.gov/blast/executables/blast+/2.6.0/	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1	0	0
+Bowtie	1.2.2	Gene Abundance	http://bowtie-bio.sourceforge.net/index.shtml	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	1	1
+Bowtie2	2.3.2	Genome Assessment	http://bowtie-bio.sourceforge.net/bowtie2/index.shtml	1	1	1	1	1	1	1	1	0	0	0	0	1	1	1	1	0	0
+BUSCO	2.0	Genome Assessment, Gene Prediction Assessment	https://busco-archive.ezlab.org/v2/	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1	0	0
+CD-HIT	4.7	Gene Clustering	http://weizhong-lab.ucsd.edu/cd-hit/	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	1	1
+eggNOG-mapper	1.0.3	Functional Annotation	https://github.com/eggnogdb/eggnog-mapper	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	1	1
+ETE 3	3.1.1	Phylogenetic Tree	http://etetoolkit.org/	1	0	1	0	1	0	1	0	1	0	1	0	1	0	1	0	0	0
+eXpress	1.5.1	Gene Abundance	https://pachterlab.github.io/eXpress/	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	1	1
+FastQC	0.11.5	Quality Control	http://www.bioinformatics.babraham.ac.uk/projects/fastqc/	1	1	1	1	1	1	1	1	0	0	0	0	1	1	1	1	1	1
+GeneMarkS	4.32	Gene Prediction	http://exon.gatech.edu/GeneMark/	1	1	0	0	1	1	0	0	1	1	0	0	1	1	0	0	0	0
+GraPhlAn	0.9.7	Characterizing Taxonomic Profiles	https://huttenhower.sph.harvard.edu/graphlan/	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	1	1
+HMMER	3.1b2	Domain mapping	http://hmmer.org/	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	1	1
+InterProScan	5.25-64.0	Functional Annotation	http://www.ebi.ac.uk/interpro/	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1	0	0
+Kraken	1.0	Quality Control	https://ccb.jhu.edu/software/kraken/	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	1
+LongQC	1.2.0b	Quality Control	https://github.com/yfukasawa/LongQC	0	0	0	0	0	0	0	0	1	1	1	1	1	1	1	1	0	0
+MetaGeneMark	3.38	Gene Prediction	http://exon.gatech.edu/GeneMark/	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	1	1
+MetaPhlAn2	2.7.5	Characterizing Taxonomic Profiles	https://huttenhower.sph.harvard.edu/metaphlan2/	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	1	1
+MultiQC	0.9	Quality Control	https://multiqc.info/	1	1	1	1	1	1	1	1	0	0	0	0	1	1	1	1	1	1
+MUMmer	3.23	Genome Assessment	http://mummer.sourceforge.net/	1	1	1	1	0	0	0	0	0	0	0	0	0	0	0	0	0	0
+MUSCLE	3.8.1551	Phylogenetic Tree	http://www.drive5.com/muscle/downloads.htm	1	0	1	0	1	0	1	0	1	0	1	0	1	0	1	0	0	0
+OrthoMCL	2.0.9	Phylogenetic Tree	https://orthomcl.org/orthomcl/app/downloads/software/	1	0	1	0	1	0	1	0	1	0	1	0	1	0	1	0	0	0
+Pilon	1.24	Genome Assembly	https://github.com/broadinstitute/pilon	0	0	0	0	0	0	0	0	0	0	0	0	1	1	1	1	0	0
+SPAdes	3.13.0	Genome Assembly	http://cab.spbu.ru/software/spades/	0	0	0	0	0	0	0	0	0	0	0	0	1	1	1	1	0	0
+QUAST	4.4	Genome Assessment	http://quast.sourceforge.net/quast	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1	0	0
+Ragout	2.0	Genome Assembly	https://github.com/fenderglass/Ragout	1	1	1	1	0	0	0	0	0	0	0	0	0	0	0	0	0	0
+RAxML	8.2.10	Phylogenetic Tree	https://cme.h-its.org/exelixis/web/software/raxml/	1	0	1	0	1	0	1	0	1	0	1	0	1	0	1	0	0	0
+Racon	1.4.21	Genome Assembly	https://github.com/isovic/racon	0	0	0	0	0	0	0	0	1	1	1	1	1	1	1	1	0	0
+Trimmomatic	0.36	Quality Control	http://www.usadellab.org/cms/?page=trimmomatic	1	1	1	1	1	1	1	1	0	0	0	0	1	1	1	1	1	1
+Unicycler	0.4.9b	Genome Assembly	https://github.com/rrwick/Unicycler	0	0	0	0	0	0	0	0	1	1	1	1	1	1	1	1	0	0

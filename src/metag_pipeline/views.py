@@ -7,29 +7,21 @@ from django.core.mail import send_mail
 from django.conf import settings
 from .models import meta_User_Job,meta_ip_log
 import uuid
-import numpy as np
-import pandas as pd
 import os
 import shutil
 import json
 import pickle
 from pathlib import Path
 from ipware.ip import get_real_ip
-import subprocess as sp
 from django_q.tasks import async, result,async_chain,Chain
 import datetime
 from geolite2 import geolite2
 import re
-import gzip
-import ast
-from collections import Counter
-from .googledrive_downloader import GoogleDriveDownloader
-import requests, requests_ftp
-from pipeline.views import data_upload,delete_upload,confirm_urls
 from tempfile import gettempdir
+import pandas as pd
 
 reader = geolite2.reader()
-web_url=web_url=settings.WEB_URL
+web_url=settings.WEB_URL
 error_map={
 "DATA":"Data Preparation",
 "QC":"Quality Control",
@@ -41,9 +33,8 @@ error_map={
 "PARSER":"Parsing Result",
 "SYSTEM":"System Error"
 }
-UPLOAD_BASE_PATH=gettempdir()
+UPLOAD_BASE_PATH = gettempdir()
 DATA=settings.OUTPUT_BASE_DIR
-obo_file=str(Path(settings.SUPPLEMENT_APP_BIN).joinpath('go-basic.obo'))
 
 
 # Create your views here.
@@ -88,9 +79,13 @@ def meta_report(request,task_id="not_passed"):
     overview['start_time']=task.start_time
     overview['end_time']=task.end_time
     
-    
     success=1
     total_file=1
+    
+    # read the MiDSystem version number
+    with open(DATA+'/'+task_id+'/MiDSystem.version') as fp:
+        version = fp.read().strip()
+    
     if(task.total_status=="FAILED"):
         success=0
         failed_step=error_map[task.error_log]
@@ -106,15 +101,26 @@ def meta_report(request,task_id="not_passed"):
                      'failed_step':failed_step,
                      'overview':overview,
                      'total_file':total_file,
+                     'version':version,
                     })
     elif(task.total_status=="WAITING" or task.total_status=="RUNNING"):
         return render(request,'meta_status.html',{})
+    
+    # get system info tables
+    tools_df = pd.read_csv(DATA+'/'+task_id+'/tools_list.tsv', sep="\t", engine='python')
+    tools_list = tools_df[tools_df.columns[:4]].values.tolist()
+    
+    databases_df = pd.read_csv(DATA+'/'+task_id+'/databases_list.tsv', sep="\t", engine='python')
+    databases_list = databases_df[databases_df.columns[:3]].values.tolist()
     
     basic_dic={
                'success':success,
                'task_id':task_id,
                'overview':overview,
                'total_file':total_file,
+               'version':version,
+               'tools_list':tools_list,
+               'databases_list':databases_list,
               }
               
     with open(DATA+'/'+task_id+'/output_dict', 'rb') as fp:
@@ -126,7 +132,6 @@ def meta_report(request,task_id="not_passed"):
     return render(request,'meta_report.html',out_dic)  
     
 def meta_result(request):
-    
     uid=str(uuid.uuid1())
     #uid="25cd61d2-3e47-11e8-97ff-d89d67f39fa9"
     

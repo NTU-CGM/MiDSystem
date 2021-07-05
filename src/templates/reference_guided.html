@@ -1,6 +1,6 @@
 {% extends 'base.html' %}
 
-{% block title %}Reference_Guided{% endblock title %}
+{% block title %}Reference-Guided Assembly{% endblock title %}
 {% load static %}
 {% block content %}
 <style type="text/css">
@@ -12,7 +12,7 @@ h4 {
 </style>
 <form action="{% url 'ref_result' %}" method="POST" target="_blank">
 {% csrf_token %}
-<h1>Reference Guided Assembly</h1>
+<h1>Reference-Guided Assembly</h1>
 
 <div class="panel-group">
   <div class="panel panel-danger">
@@ -160,10 +160,10 @@ h4 {
   </div>
     
   <div class="panel panel-success">
-    <div class="panel-heading">Step 4. Reference Guided Assembly</div>
+    <div class="panel-heading">Step 4. Reference-Guided Assembly</div>
     <div class="panel-body">
         In this step, we provide Ragout for assembly.<br />
-        Quast,BUSCO,MUMmer, and Bowtie2 for assessment of the assebled sequence.<br />
+        Quast, BUSCO, MUMmer, and Bowtie2 for assessment of the assebled sequence.<br />
         <label class="radio-inline">
             <input type="radio" name="ref_setting" id="ref_default" value="default" checked />Default Settings
         </label>
@@ -400,7 +400,7 @@ h4 {
             </thead>
             <tbody>
               <tr>
-                <td>File format</td>
+                <td>file format</td>
                 <td style="width: 60%">
                     <div class="checkbox">
                       <label><input name="file_type" type="checkbox" value="tsv" checked disabled />tsv</label>
@@ -429,19 +429,18 @@ h4 {
     </div>
   </div>
 
-<div class="panel panel-success">
-<div class="panel-heading">Step 7. (Optional) Phylogenetic Tree</div>
-    <div class="panel-body">
+  <div class="panel panel-success">
+    <div class="panel-heading">Step 7. (Optional) Phylogenetic Tree</div>
+      <div class="panel-body">
         The phylogenetic tree is optional.<br /> 
         If you want to draw a tree, please select "Yes" and select at most 10 species. <br />
         <p style="color:red">Note: It will take some time to load the species data if you choose "Yes."</p>
         <label class="radio-inline">
-            <input type="radio" name="tree" id="no_tree" value="no_tree" checked />No, thanks.
+            <input type="radio" name="tree" id="no_tree" value="no_tree" checked />No
         </label>
         <label class="radio-inline">
-            <input type="radio" name="tree" id="yes_tree" value="yes_tree" />Yes, I want to construct a phylogenetic tree.
+            <input type="radio" name="tree" id="yes_tree" value="yes_tree" />Yes, constructing a phylogenetic tree.
         </label>
-        <br />
         <p>Please provide the name for your sample that will be displayed on the tree:</p>
         <p>Maximum size of a sample name cannot exceed 10 characters. Only A-Za-z0-9 and _ characters are allowed.</p>
         <input type="text" name="tree_sample_name" id="tree_sample_name" class="form-control" value="my_sample" maxlength="10" />
@@ -464,13 +463,31 @@ h4 {
           <option value="four" data-section="top">Swift</option>-->
           
         </select>
-    </div>
-</div>
+      </div>
+  </div>
 <div id="message">
 </div>
     
-<button class="btn btn-default" type="submit" id="submit">Submit</button>
-</div>
+  <div class="panel panel-info">
+    <div class="panel-heading">Step 8. Privacy Statement</div>
+    <div class="panel-body">
+	MiDSystem NEVER collects and shares users' upload data and results with others. All data and metadata of one task will be removed automatically from the server without any copies after <b>7 days</b> of the report generated.
+	<p></p>
+	<input class="form-check-input" type="checkbox" name="accept_privacy_statement" id="accept_privacy_statement" value="accept" />
+	<label class="form-check-label" for="accept_privacy_statement">I have read the Privacy Statement of MiDSystem and accept MiDSystem to process my upload data.</label>
+    </div>
+  </div>
+
+  <div id="submission_panel">
+  <div class="panel panel-success">
+    <div class="panel-heading">Step 9. Data submission</div>
+    <div class="panel-body">
+	  <button class="btn btn-default btn-success" type="submit" id="submit">Submit</button>
+    </div>
+  </div>
+  </div>
+
+  </div>
 </div>
 </form>
 {% endblock content %}

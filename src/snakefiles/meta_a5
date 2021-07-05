@@ -14,7 +14,7 @@ rule a5miseq:
 
     shell:
         "cd "+user_root+"a5_miseq;"
-        "a5_pipeline.pl --threads=15 {input} user 1> a5.stdout.log 2>a5.stderr.log;" ## Due to the depth of a sample which is insufficient may cause a5 fail, cancel to use --metagenome option temporarily.
-        #"a5_pipeline.pl --threads=15 --metagenome {input} user 1> a5.stdout.log 2>a5.stderr.log;"
+        "a5_pipeline.pl --threads=22 {input} user 1> a5.stdout.log 2>a5.stderr.log;" ## Due to the depth of a sample which is insufficient may cause a5 fail, cancel to use --metagenome option temporarily.
+        #"a5_pipeline.pl --threads=22 --metagenome {input} user 1> a5.stdout.log 2>a5.stderr.log;"
         "ln -s user.contigs.fasta user.final.scaffolds.fasta;"
         "sed -i -r 's/\|size[0-9]+//' user.final.scaffolds.fasta;"

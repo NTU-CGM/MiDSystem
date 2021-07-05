@@ -34,7 +34,7 @@ rule run_orthomcl:
         "cd "+user_root+"tree/orthomcl;"
         "{NON_CONDA_APP_BIN}orthomclSoftware-v2.0.9/bin/orthomclFilterFasta compliantFasta 10 20;"
         "makeblastdb -in goodProteins.fasta -dbtype prot;"
-        "blastp -query goodProteins.fasta -db goodProteins.fasta -outfmt 6 -num_threads 15 -evalue 1E-5 -out all_VS_all.out.tab -seg yes;"
+        "blastp -query goodProteins.fasta -db goodProteins.fasta -outfmt 6 -num_threads 22 -evalue 1E-5 -out all_VS_all.out.tab -seg yes;"
         "{NON_CONDA_APP_BIN}orthomclSoftware-v2.0.9/bin/orthomclBlastParser all_VS_all.out.tab ./compliantFasta >> similarSequences.txt;"
         "mv ../orthomcl.config orthomcl.config;"
         "{NON_CONDA_APP_BIN}orthomclSoftware-v2.0.9/bin/orthomclInstallSchema orthomcl.config;"
@@ -72,7 +72,7 @@ rule run_raxml:
         user_root+'tree/raxml/RAxML_bipartitions.phylogeny'
     shell:
         "cd "+user_root+"tree/raxml;"
-        "raxmlHPC-PTHREADS-SSE3 -T 15 -f a -m GTRGAMMA -p "+random_p+" -x "+random_x+" -# 100 -s ../merged.nucl.fa -n phylogeny;"
+        "raxmlHPC-PTHREADS-SSE3 -T 22 -f a -m GTRGAMMA -p "+random_p+" -x "+random_x+" -# 100 -s ../merged.nucl.fa -n phylogeny;"
         
 
 #draw tree plot (here? or at python?)

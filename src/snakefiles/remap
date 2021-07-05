@@ -1,4 +1,3 @@
-#REF=0
 if(REF==1):
     rule remap_ref:
         input:
@@ -8,12 +7,13 @@ if(REF==1):
         shell:
             "mkdir "+user_root+"ragout/bowtie2_idx;"
             "cd "+user_root+"ragout/bowtie2_idx;"
-            "bowtie2-build --threads 15 {input} a5_scaffolds.fasta;"
+            "bowtie2-build --threads 22 {input} a5_scaffolds.fasta;"
             "cd ../..;"
             "mkdir -p bowtie2/scaffold;"
             "cd bowtie2/scaffold;"
-            "bowtie2 -p 15"+no_unal+" -x ../../ragout/bowtie2_idx/a5_scaffolds.fasta -1 ../../trimmomatic/R1.trimmed.fastq -2 ../../trimmomatic/R2.trimmed.fastq 1> bowtie2.sam 2> bowtie2.log;"
+            "bowtie2 -p 22"+no_unal+" -x ../../ragout/bowtie2_idx/a5_scaffolds.fasta -1 ../../trimmomatic/R1.trimmed.fastq -2 ../../trimmomatic/R2.trimmed.fastq 1> bowtie2.sam 2> bowtie2.log;"
             "samtools view -S -b bowtie2.sam > remapping.bam;"
+            "rm -f bowtie2.sam;"
 
 else:
     print("non_ref")
@@ -25,11 +25,10 @@ else:
         shell:
             "mkdir "+user_root+"a5_miseq/bowtie2_idx;"
             "cd "+user_root+"a5_miseq/bowtie2_idx;"
-            "bowtie2-build --threads 15 {input} user.contigs.fasta;"
+            "bowtie2-build --threads 22 {input} user.contigs.fasta;"
             "cd ../..;"
             "mkdir -p bowtie2/contig;"
             "cd bowtie2/contig;"
-            "bowtie2 -p 15"+no_unal+" -x ../../a5_miseq/bowtie2_idx/user.contigs.fasta -1 ../../trimmomatic/R1.trimmed.fastq -2 ../../trimmomatic/R2.trimmed.fastq 1> bowtie2.sam 2> bowtie2.log;"
+            "bowtie2 -p 22"+no_unal+" -x ../../a5_miseq/bowtie2_idx/user.contigs.fasta -1 ../../trimmomatic/R1.trimmed.fastq -2 ../../trimmomatic/R2.trimmed.fastq 1> bowtie2.sam 2> bowtie2.log;"
             "samtools view -S -b bowtie2.sam > remapping.bam;"
-
-
+            "rm -f bowtie2.sam;"

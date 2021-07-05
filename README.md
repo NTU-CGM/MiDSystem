@@ -18,6 +18,7 @@ A multi-core server with at least 128GB RAM is recommended when running the enti
     3.1. `cd ~/MiDSystem`  
     3.2. `conda create -n ngs --file conda_ngs_requirements.txt`  
     3.3. `conda create -n ngs_p2 --file conda_ngs_p2_requirements.txt`  
+    3.4. `conda create -n ngs_long --file conda_ngs_long_requirements.txt`  
 4. Install MySQL  
     4.1. `sudo yum install mariadb mariadb-devel mariadb-libs mariadb-server cmake php php-pear php-cli php-mbstring gnuplot` (optional: phpMyAdmin httpd httpd-tools httpd-manual)  
     4.2. `sudo systemctl enable mariadb.service`  
@@ -44,9 +45,11 @@ A multi-core server with at least 128GB RAM is recommended when running the enti
     5.2. `pip install -r pip_ngs_p2_requirements.txt`  
     5.3. `source deactivate ngs_p2; source activate ngs`  
     5.4. `pip install -r pip_ngs_requirements.txt`  
+    5.5. `source deactivate ngs; source activate ngs_long`  
+    5.6. `pip install -r pip_ngs_long_requirements.txt`  
 6. Install dependency  
     6.1. Install other required tools as follows in `/usr/local/NGSTools`  
-    EVidenceModeler-1.1.1, interproscan-5.25-64.0, eggnog-mapper, genemark_suite_linux_64, MetaGeneMark_linux_64, Ragout, orthomclSoftware-v2.0.9, GraphlAn, Gblocks_Linux64_0.91b   
+    EVidenceModeler-1.1.1, interproscan-5.25-64.0, eggnog-mapper-1.0.3, genemark_suite_linux_64_4.32, MetaGeneMark_linux_64_3.38, Ragout-2.0, orthomclSoftware-v2.0.9, GraphlAn-2.7.5, Gblocks_Linux64_0.91b, LongQC-1.2.0b, pilon-1.24, racon-1.4.21, SPAdes-3.13.0-Linux, Unicycler-0.4.9b   
     6.2. Run `/usr/local/NGSTools/Ragout/scripts/install-sibelia.py` and install Sibelia in `/usr/local/bin`  
 7. Create /data and put required datasets here  
     7.1. `mkdir /data`  

@@ -17,7 +17,7 @@ import shutil
 from pipeline.tasks import copy_snake,run_QC
 import re
 import gzip
-from .googledrive_downloader import GoogleDriveDownloader
+from pipeline.googledrive_downloader import GoogleDriveDownloader
 import requests, requests_ftp
 
 web_url=settings.WEB_URL #remember to change this
@@ -529,8 +529,6 @@ def run_meta_parser(data_path):
     
     
 def run_meta_pipeline(sfile_path,uid,data_path,parameters):
-
-    
     try:
         user=meta_User_Job.objects.filter(user_id=uid)[0]
 
@@ -538,8 +536,25 @@ def run_meta_pipeline(sfile_path,uid,data_path,parameters):
         user.start_time=datetime.datetime.now()
         user.save(update_fields=['total_status','start_time'])
         
-        # start data preparation
+        if not path.exists(data_path):
+            makedirs(data_path)
         
+        # get lists of tools and databases that are conducted in this task
+        selected_col_name = 'meta'
+        if(parameters['kraken']=='yes'): selected_col_name += '_kraken'
+        
+        tmp_df = pd.read_csv(settings.TOOLS_LIST, sep="\t", engine='python')
+        tools_df = tmp_df.loc[tmp_df[selected_col_name]==1][tmp_df.columns[:4]]
+        tools_df.to_csv(data_path+'/tools_list.tsv', sep="\t", index=False)
+        tmp_df = pd.read_csv(settings.DATABASES_LIST, sep="\t", engine='python')
+        databases_df = tmp_df.loc[tmp_df[selected_col_name]==1][tmp_df.columns[:3]]
+        databases_df.to_csv(data_path+'/databases_list.tsv', sep="\t", index=False)
+        
+        # get MiDSystem version
+        with open(data_path+'/MiDSystem.version', 'w') as fp:
+            fp.write(settings.VERSION)
+        
+        # start data preparation
         user.data_preparation_status="RUNNING"
         user.save(update_fields=['data_preparation_status'])
         
@@ -581,7 +596,6 @@ def run_meta_pipeline(sfile_path,uid,data_path,parameters):
         
         copy_snake(sfile_path+"/QC",data_path+"/QC",data_path,0,{})
         qc_status=run_QC(data_path)
-        print(qc_status)
         if(qc_status!=0):
             print("pipeline stop at QC")
             failed_tar_result(data_path)
@@ -722,7 +736,6 @@ def run_meta_pipeline(sfile_path,uid,data_path,parameters):
     
     
     except:
-        
         print("pipeline stop due to system error!!!")
         user.total_status="FAILED"
         user.error_log="SYSTEM"
@@ -739,8 +752,3 @@ def run_meta_pipeline(sfile_path,uid,data_path,parameters):
     [mail], fail_silently=True)
     
     return 0
-
-
-def order_fruit(num_fruit):
-    time.sleep(num_fruit*30)   
-    return '%s_%s' % ("sleep", num_fruit)

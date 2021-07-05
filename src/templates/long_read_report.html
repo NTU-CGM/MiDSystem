@@ -1,0 +1,1407 @@
+<!DOCTYPE html>
+<html>
+<title>Report</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+{% load static %}
+<link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Raleway">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+<link href="https://cdn.datatables.net/1.10.16/css/jquery.dataTables.min.css" rel="stylesheet" type="text/css" />
+<style>
+html,body,h1,h2,h3,h4,h5 {font-family: "Helvetica Neue",Helvetica,Arial,sans-serif;}
+body {
+    background-color: #FCFAF2; 
+    color:#2B5F75;
+}
+
+.imgB1 {
+  z-index: 3;
+}
+
+tr.group,
+tr.group:hover {
+    background-color: #ddd !important;
+}
+
+#myBtn {
+  display: none;
+  position: fixed;
+  bottom: 20px;
+  right: 30px;
+  z-index: 99;
+  font-size: 18px;
+  border: none;
+  outline: none;
+  background-color: red;
+  color: white;
+  cursor: pointer;
+  padding: 15px;
+  border-radius: 4px;
+}
+
+#myBtn:hover {
+  background-color: #555;
+}
+</style>
+<style>
+ul, li {
+	margin: 0;
+	padding: 0;
+	list-style: none;
+}
+.abgne_tab {
+	clear: left;
+	width: 100%;
+	margin: 10px 0;
+}
+ul.tabs {
+	width: 100%;
+	height: 32px;
+	border-bottom: 2px solid #999;
+	border-left: 1px solid #999;
+}
+ul.tabs li {
+	float: left;
+	height: 31px;
+	line-height: 31px;
+	overflow: hidden;
+	position: relative;
+	margin-bottom: -1px;	/* 讓 li 往下移來遮住 ul 的部份 border-bottom */
+	border: 1px solid #999;
+	border-left: none;
+	background: #e1e1e1;
+}
+ul.tabs li a {
+	display: block;
+	padding: 0 20px;
+	color: #000;
+	border: 1px solid #fff;
+	text-decoration: none;
+}
+ul.tabs li a:hover {
+	background: #ccc;
+}
+ul.tabs li.active  {
+	background: #fff;
+	border-bottom: 1px solid#fff;
+}
+ul.tabs li.active a:hover {
+	background: #fff;
+}
+div.tab_container {
+	clear: left;
+	width: 100%;
+	//border: 1px solid #999;
+	border-top: none;
+	background: #fff;
+}
+div.tab_container .tab_content {
+	padding: 2px;
+}
+div.tab_container .tab_content h2 {
+	margin: 0 0 20px;
+}
+</style>
+
+<!-- Top container -->
+<div class="w3-bar w3-top w3-large" style="z-index:4;background-color:#cceaed">
+  <button class="w3-bar-item w3-button w3-hide-large w3-hover-none w3-hover-text-light-grey" onclick="w3_open();"><i class="fa fa-bars"></i>  Menu</button>
+  {% if HYBRID %}
+  <span class="w3-bar-item w3-left">Hybrid Assembly</span>
+  {% else %}
+  <span class="w3-bar-item w3-left">Long-Read Assembly</span>
+  {% endif %}
+  <span class="w3-bar-item w3-right"></span>
+</div>
+
+<!-- Sidebar/menu -->
+{% if success %}
+    <nav class="w3-sidebar w3-collapse w3-white w3-animate-left" style="z-index:3;width:250px;" id="mySidebar">
+      <div class="w3-container">
+        <h5>Dashboard</h5>
+      </div>
+      <div class="w3-bar-block" style="font-size:14px">
+        <a href="#" class="w3-bar-item w3-button w3-padding-16 w3-hide-large w3-dark-grey w3-hover-black" onclick="w3_close()" title="close menu"><i class="fa fa-remove fa-fw"></i>  Close Menu</a>
+        <a href="#" class="w3-bar-item w3-button w3-padding" onclick="loading(this.name)" name="summary_result"><img src="{% static 'vertical-timeline/img/glyphicons-30-notes-2.png' %}" height="14" width="15">  Overview</a>
+        <a href="#" class="w3-bar-item w3-button w3-padding" onclick="loading(this.name)" name="qc_result"><img src="{% static 'vertical-timeline/img/glyphicons-28-search.png' %}" height="14" width="15">  Quality Control</a>
+        <a href="#" class="w3-bar-item w3-button w3-padding" onclick="loading(this.name)" name="unicycler_result"><img src="{% static 'vertical-timeline/img/glyphicons-111-align-left.png' %}" height="14" width="15">  <i>De Novo</i> Assembly</a>
+        <a href="#" class="w3-bar-item w3-button w3-padding" onclick="loading(this.name)" name="pred_result"><img src="{% static 'vertical-timeline/img/glyphicons-489-multiple-displays.png' %}" height="14" width="15">  Gene Prediction</a>
+        <a href="#" class="w3-bar-item w3-button w3-padding" onclick="loading(this.name)" name="function_result"><img src="{% static 'vertical-timeline/img/glyphicons-530-list-alt.png' %}" height="14" width="15">  GO Term Annotation</a>
+        {% if TREE %}
+        <a href="#" class="w3-bar-item w3-button w3-padding" onclick="loading(this.name)" name="tree_result"><img src="{% static 'vertical-timeline/img/glyphicons-692-tree-structure.png' %}" height="14" width="15">  Tree</a>
+        {% endif %}
+        <a href="#" class="w3-bar-item w3-button w3-padding" onclick="loading(this.name)" name="system_info"><img src="{% static 'vertical-timeline/img/glyphicons-320-sort.png' %}" height="14" width="15">  System Info</a>
+      </div>
+    </nav>
+
+
+    <!-- Overlay effect when opening sidebar on small screens -->
+    <div class="w3-overlay w3-hide-large w3-animate-opacity" onclick="w3_close()" style="cursor:pointer" title="close side menu" id="myOverlay"></div>
+    <!-- !PAGE CONTENT! -->
+    <div class="pipeline_result" id="summary_result">
+        <div class="w3-main" style="margin-left:260px;margin-top:43px;">
+          <header class="w3-container" style="padding-top:22px">
+            <h4><b><img src="{% static 'vertical-timeline/img/glyphicons-30-notes-2.png' %}"> Overview</b></h4>
+          </header>
+          
+          <div class="w3-row-padding w3-margin-bottom">
+             <div class="w3-panel w3-border" style="width:90%;">
+               <p>Congradulations! Your job has been completed successfully!</p>
+               <p>The followings are details about your job, and the download link to all the logs/results.</p>
+               <p>Please click the left navigation panel to show results of each step.</p>
+             </div>
+          </div>
+          <div class="w3-row-padding w3-margin-bottom" style="float:center">
+            <h5>Information about your job:</h5>
+            <table class="w3-table w3-striped w3-white" style="width:90%;">
+                <tr>
+                    <td width="30%">Job ID</td>
+                    <td>{{task_id}}</td>
+                </tr>
+                <tr>
+                    <td>MiDSystem version</td>
+                    <td>{{version}}</td>
+                </tr>
+                <tr>
+                    <td>Submission time</td>
+                    <td>{{overview.submit_time}}</td>
+                </tr>
+                <tr>
+                    <td>Start time</td>
+                    <td>{{overview.start_time}}</td>
+                </tr>
+                <tr>
+                    <td>End time</td>
+                    <td>{{overview.end_time}}</td>
+                </tr>
+                <tr>
+                    <td>Download Link</td>
+                    <td>
+                        <a class="w3-button w3-round-large w3-border w3-tiny" style="background-color:#d6efeb;font-size:16px" href="{% static ''%}{{task_id}}/myjob.tar.gz" role="button">
+                        Download  <i class="fa fa-arrow-down"></i>
+                        </a>
+                    </td>
+                </tr>
+            </table>
+          </div>
+
+        </div>
+    </div>
+    <!--qc result-->
+    <div class="pipeline_result" id="qc_result">
+        <div class="w3-main" style="margin-left:260px;margin-top:43px;">
+          <!-- Header -->
+          <header class="w3-container" style="padding-top:22px">
+            <h4><b><img src="{% static 'vertical-timeline/img/glyphicons-28-search.png' %}"> Quality Control Result</b></h4>
+          </header>
+
+          <div class="w3-row-padding w3-margin-bottom">
+             <div class="w3-panel w3-border" style="width:90%;">
+               <p>Quality control description here</p>
+             </div>
+          </div>
+		  
+		  <div class="w3-row-padding w3-margin-bottom">
+			<h5>Long-Read Summary</h5>
+			<table class="w3-table w3-card-4 w3-bordered w3-bordered w3-border w3-hoverable w3-white">
+			  <tr>
+				<td><img src="{% static 'vertical-timeline/img/glyphicons-111-align-left.png' %}"></td>
+				<td>LongQC results</td>
+				<td><a href="{% static ''%}{{task_id}}/longqc/web_summary.html" target="_blank">Link</a></td>
+			  </tr>
+			</table><br>
+		  </div>
+		  <hr>
+		  
+		  {% if HYBRID %}
+			  <div class="w3-row-padding w3-margin-bottom">
+				<h5>Short-Read Summary</h5>
+				<table class="w3-table w3-card-4 w3-bordered w3-bordered w3-border w3-hoverable w3-white">
+				  <tr>
+					<td width="60%"><a href="{% static ''%}{{task_id}}/multiqc/multiqc_report.html" target="_blank">Before Trimming</td>
+					<!--<td width="40%">Link</a></td>-->
+				  </tr>
+				  <tr>
+					<td width="60%"><a href="{% static ''%}{{task_id}}/trimmomatic/multiqc/multiqc_report.html" target="_blank">After Trimming</td>
+					<!--<td width="40%">Link</a></td>-->
+				  </tr>
+				</table><br>
+			  </div>
+			  <hr>
+			  <div class="w3-panel">
+				<div class="w3-row-padding" style="margin:0 -16px">
+					<h5>QC report links: R1</h5>
+					<table class="w3-table w3-card-4 w3-bordered w3-white">
+					  <tr>
+						<td><img src="{% static 'vertical-timeline/img/glyphicons-111-align-left.png' %}"></td>
+						<td>FastQC before trimming</td>
+						<td><a href="{% static ''%}{{task_id}}/fastqc/R1_fastqc.html" target="_blank">Link</a></td>
+					  </tr>
+					  <tr>
+						<td><img src="{% static 'vertical-timeline/img/glyphicons-599-scissors-alt.png' %}"></td>
+						<td>FastQC after trimming</td>
+						<td><a href="{% static ''%}{{task_id}}/trimmomatic/fastqc/R1.trimmed_fastqc.html" target="_blank">Link</a></td>
+					  </tr>
+					  
+					</table>
+					<br>
+					<h5>QC report links: R2</h5>
+					<table class="w3-table w3-card-4 w3-bordered w3-white">
+					  <tr>
+						<td><img src="{% static 'vertical-timeline/img/glyphicons-111-align-left.png' %}"></td>
+						<td>FastQC before trimming</td>
+						<td><a href="{% static ''%}{{task_id}}/fastqc/R2_fastqc.html" target="_blank">Link</a></td>
+					  </tr>
+					  <tr>
+						<td><img src="{% static 'vertical-timeline/img/glyphicons-599-scissors-alt.png' %}"></td>
+						<td>FastQC after trimming</td>
+						<td><a href="{% static ''%}{{task_id}}/trimmomatic/fastqc/R2.trimmed_fastqc.html" target="_blank">Link</a></td>
+					  </tr>
+					  
+					</table>
+					<br>
+					<hr>
+					<h5>Trimmomatic</h5>
+					<div id="piechart_3d" style="width: 900px; height: 500px;">
+						<!--<img src="/w3images/region.jpg" style="width:100%" alt="Google Regional Map">-->
+					</div>   
+				</div>
+			  </div>
+			  <hr>
+          {% endif %}
+        </div>
+          <!-- End qc page content --> 
+    </div>
+    <!--Unicycler result-->
+    <div class="pipeline_result" id="unicycler_result">
+        <div class="w3-main" style="margin-left:260px;margin-top:43px;">
+              <!-- Header -->
+              <header class="w3-container" style="padding-top:22px">
+                <h4><b><img src="{% static 'vertical-timeline/img/glyphicons-111-align-left.png' %}"> <i>De Novo</i> Assembly Result</b></h4>
+              </header>
+
+              <div class="w3-panel w3-border" style="width:90%;">
+                <p>De novo description here</p>
+              </div>
+              
+              <div class="w3-row-padding w3-margin-bottom">
+                 <h5>Unicycler Assemblied Contigs:&nbsp;&nbsp;
+                 <a class="w3-button w3-round-large w3-border" style="background-color:#d6efeb;font-size:16px" href="{% static ''%}{{task_id}}/unicycler/assembly.fasta" role="button">
+                    Download  <i class="fa fa-arrow-down"></i>
+                 </a>
+                 </h5>
+              </div>
+              <hr>
+			  
+              <header class="w3-container" style="padding-top:22px">
+                <h4><b><img src="{% static 'vertical-timeline/img/glyphicons-489-multiple-displays.png' %}"> <i>De Novo</i> Assembly Assessment</b></h4>
+              </header>
+              <div class="w3-panel">
+                  <div class="w3-row-padding" style="margin:0 -16px">
+                    <h5>Quast Result:&nbsp;&nbsp;
+                    <a class="w3-button w3-round-large w3-border" style="background-color:#d6efeb;font-size:16px" href="{% static ''%}{{task_id}}/quast/contig/report.pdf" role="button">
+                    Download Report(PDF)  <i class="fa fa-arrow-down"></i>
+                    </a>
+                    </h5>
+                    <br>
+                    <table class="w3-table w3-card-4 w3-bordered w3-white">
+                      <tr>
+                        <td width="15%"><img src="{% static 'vertical-timeline/img/glyphicons-30-notes-2.png' %}"></td>
+                        <td width="60%">Report Online Viewer</td>
+                        <td><a href="{% static ''%}{{task_id}}/quast/contig/report.html" target="_blank">Link</a></td>
+                      </tr>
+                        <td><img src="{% static 'vertical-timeline/img/glyphicons-69-ruler.png' %}"></td>
+                        <td>Contig Size Viewer</td>
+                        <td><a href="{% static ''%}{{task_id}}/quast/contig/icarus_viewers/contig_size_viewer.html" target="_blank">Link</a></td>
+                      </tr>
+                    </table>
+                    <br>
+                  </div>
+                  <h5>BUSCO Result:</h5>
+                  <p>Hover over Complete BUSCO to see the percentage of single-copy and duplicated ones.</p>
+                  <div class="w3-row-padding" style="margin:0 -16px">
+                    <div id="busco_contig_piechart" class="w3-half" style="width: 500px; height: 300px;">
+                    </div>
+                    <div id="myDiv" class="w3-half" style="width: 400px; height: 300px;">
+                   
+                    </div>
+                    <br>
+                  </div>
+              </div>
+              
+              {% if HYBRID %}
+                <h5>Bowtie2 Result:</h5>
+                  <div>
+                      <p>{{alignment_rate}}</p>
+                      <table class="w3-table w3-striped w3-white" style="width:80%;">
+                      {% autoescape off %}
+                        {% for col,val in bowtie_result_table %}
+                          <tr>
+                            <td width="50%">{{col}}</td>
+                            <td>{{val}}</td>
+                          </tr>
+                        {% endfor %}
+                      {% endautoescape %}
+                      </table>
+                      <br>
+                      <br>
+                      <div id="bowtie_piechart_3d" style="width: 900px; height: 500px;">
+                      </div>
+                  <br>
+                  </div>
+              {% endif %}
+        </div>
+    </div>
+    <div class="pipeline_result" id="pred_result">
+        <div class="w3-main" style="margin-left:260px;margin-top:43px;">
+              <!-- Header -->
+              <header class="w3-container" style="padding-top:22px">
+                <h4><b><img src="{% static 'vertical-timeline/img/glyphicons-489-multiple-displays.png' %}"> Gene Prediction and Assessment Result</b></h4>
+              </header>
+
+              <div class="w3-panel w3-border" style="width:90%;">
+                <p>Gene prediction description here</p>
+              </div>    
+              
+              <div class="w3-row-padding w3-margin-bottom">
+                <h5>Gene Prediction (cDNA):&nbsp;&nbsp;&nbsp;&nbsp;
+                <a class="w3-button w3-round-large w3-border" style="background-color:#d6efeb;font-size:16px" href="{% static ''%}{{task_id}}/{{cdna_path}}" role="button">
+                    Download  <i class="fa fa-arrow-down"></i>
+                </a>
+                </h5>
+                <h5>Gene Prediction (protein):&nbsp;&nbsp;
+                <a class="w3-button w3-round-large w3-border" style="background-color:#d6efeb;font-size:16px" href="{% static ''%}{{task_id}}/{{protein_path}}" role="button">
+                    Download  <i class="fa fa-arrow-down"></i>
+                </a>
+                </h5>
+                <h5>GFF3 file:&nbsp;&nbsp;
+                <a class="w3-button w3-round-large w3-border" style="background-color:#d6efeb;font-size:16px" href="{% static ''%}{{task_id}}/{{gff_path}}" role="button">
+                    Download  <i class="fa fa-arrow-down"></i>
+                </a>
+                </h5>
+                <br>
+                <table class="w3-table w3-striped w3-white" style="width:90%;">
+                      <tr>
+                        <td width="50%">Predict Tool</td>
+                        <td>{{predicted_tool}}</td>
+                      </tr>
+                    {% for col,val in gene_pred_table %}
+                      <tr>
+                        <td width="50%">{{col}}</td>
+                        <td>{{val}}</td>
+                      </tr>
+                    {% endfor %}
+                </table>
+                
+                <h5>BUSCO Result:</h5>
+                <p>Hover over Complete BUSCO to see the percentage of single-copy and duplicated ones.</p>
+                <div class="w3-row-padding" style="margin:0 -16px">
+                
+                    <div id="busco_pred_piechart" class="w3-half" style="width: 500px; height: 300px;">
+                    </div>
+                    <div id="pred_myDiv" class="w3-half" style="width: 400px; height: 300px;">
+                    </div>
+                
+                    <br>
+                    <br>
+                </div>
+                
+                <h5>BLAST Result:</h5>
+                <div>
+                    <p>The BLAST setting: best hit mode, outfmt '6 std qcovs staxids'</p>
+                    <table class="w3-table w3-striped w3-white" style="width:90%;">
+                        {% for col,val in blast_table %}
+                          <tr>
+                            <td width="75%">{{col}}</td>
+                            <td>{{val}}</td>
+                          </tr>
+                        {% endfor %}
+                           <tr>
+                             <td width="75%">Download result tables</td>
+                             <td><a class="w3-button w3-round-large w3-border w3-tiny" style="background-color:#d6efeb;font-size:16px" href="{% static ''%}{{task_id}}/blast.tar.gz" role="button">
+                                Download  <i class="fa fa-arrow-down"></i>
+                            </a></td>
+                           </tr>
+                    </table>
+                    
+                    
+                    <p>Coverage Table:</p>
+                    <p>The percentage is calculated by gene number/blasted gene number</p>
+                    <table class="w3-table w3-striped w3-white" style="width:90%;">
+                    <tr>
+                        <td>Coverage Range</td>
+                        <td>>=95%</td>
+                        <td>>=90%</td>
+                        <td>>=80%</td>
+                        <td>>=70%</td>
+                        <td>>=60%</td>
+                        <td>>=50%</td>
+                    </tr>
+                    <tr>
+                        <td>Percentage (%)</td>
+                        {% for val in coverage_perc %}
+                        <td>{{val}}</td>
+                        {% endfor %}
+                    </tr>
+                    <tr>
+                        <td>Gene Number</td>
+                        {% for val in coverage %}
+                        <td>{{val}}</td>
+                        {% endfor %}
+                    </tr>
+                    </table>
+                    <br>
+                    <br>
+                    <div id="blastDiv" style="width:90%;"></div>
+                    <!--<div id="raw_blastDiv" class="w3-half" style="width: 450px; height: 400px;"></div>-->
+                </div>
+                
+              </div>
+        </div>
+    </div>    
+    <div class="pipeline_result" id="function_result">
+        <div class="w3-main" style="margin-left:260px;margin-top:43px;">
+            <button onclick="topFunction()" id="myBtn" title="Go to top">Top</button>
+            <header class="w3-container" style="padding-top:22px">
+                <h4><b><img src="{% static 'vertical-timeline/img/glyphicons-530-list-alt.png' %}"> GO Term Annotation Result</b></h4>
+            </header>
+
+            <div class="w3-panel w3-border" style="width:90%;">
+                <p>Functional description here</p>
+            </div>
+            <h5>KEGG Result:</h5>
+            <div>
+                <table id="kegg_table" class="display">
+                    <thead>
+                    <tr>
+                        <th>Entry</th>
+                        <th>Pathway Name</th>                        
+                        <th>Protein Access</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                        {% for g,entry,name in kegg_output %}
+                          <tr>
+                            <td><a href="http://www.genome.jp/dbget-bin/www_bget?{{entry}}" target="_blank">{{entry}}</a></td>                          
+                            <td>{{name}}</td>
+                            <td>{{g}}</td>
+                          </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            <br>
+            <hr>
+            <br>
+            <div id="pathway_bar"></div>
+            <br>
+            <hr>
+            <br>
+            {% if big_flag %}
+                <p>Because the table is too big, we provide csv file here, instead of showing the result on the website.</p>
+                <p>GO slim tables are produced by mapping to goslim_generic.obo and goslim_metagenomics.obo.</p>
+                <p>The csv tables produced by mapping to goslim_metagenomics.obo will have "meta_" prefix.</p>
+                <h5>GO Term and GO Slim Result:&nbsp;&nbsp;&nbsp;&nbsp;
+                <a class="w3-button w3-round-large w3-border" style="background-color:#d6efeb;font-size:16px" href="{% static ''%}{{task_id}}/GO.tar.gz" role="button">
+                    Download  <i class="fa fa-arrow-down"></i>
+                </a>
+                </h5>
+            {% else %}
+                <h5>GO Term and GO Slim Result:&nbsp;&nbsp;&nbsp;&nbsp;
+                <a class="w3-button w3-round-large w3-border" style="background-color:#d6efeb;font-size:16px" href="{% static ''%}{{task_id}}/GO.tar.gz" role="button">
+                    Download  <i class="fa fa-arrow-down"></i>
+                </a>
+                </h5>
+                <p>All the tables (both GO term and GO Slim) are included in the download link above.</p>
+                <p>GO slim tables are produced by mapping to goslim_generic.obo and goslim_metagenomics.obo, respetively.</p>
+                <p>The csv tables produced by mapping to goslim_metagenomics.obo will have "meta_" prefix.</p>
+                <h5>GO Term:</h5>
+                <div class="abgne_tab">
+                    <ul class="tabs">
+                        <li><a href="#tab1">Molecular Function</a></li>
+                        <li><a href="#tab2">Biological Process</a></li>
+                        <li><a href="#tab3">Cellular Component</a></li>
+                    </ul>
+             
+                    <div class="tab_container">
+                            {% for go_type,go_type_output,mole_go_output in go_output %}
+                            <div id="tab{{ forloop.counter }}" class="tab_content">
+                                <!--<h5 id="loc_{{go_type}}">GO Term--{{go_type_output}} Result:</h5>-->
+                                <div>
+                                    <table id="example_{{go_type}}" class="display" >
+                                    <thead>
+                                        <tr>
+                                            <th>Accession</th>
+                                            <th>GO Description</th>
+                                            <th>Protein Accession</th>                        
+                                            <th>Level</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for access,desp,gene,level in mole_go_output %}
+                                        <tr>
+                                            <td>{{access}}<a href="http://www.candidagenome.org/cgi-bin/GO/go.pl?goid={{access}}" target="_blank">&nbsp;(link)</a></td>
+                                            <td>{{desp}}</td>
+                                            <td>{{gene}}</td>
+                                            <td>{{level}}</td>
+                                        </tr>
+                                        {% endfor %}
+                                        
+                                    </tbody>    
+                                    </table>    
+                                </div>
+                                <br>
+                                <br> 
+                                <hr>
+                            </div>
+                            {% endfor %}
+                    </div>
+                </div>
+                <br>
+                <hr>
+                <br>
+                <h5>GO Slim:</h5>
+                <p>Due to the size of the data, we will only display tables mapped to goslim_generic.obo below.</p>
+                <div class="abgne_tab">
+                    <ul class="tabs">
+                        <li><a href="#tab_slim_1">Molecular Function</a></li>
+                        <li><a href="#tab_slim_2">Biological Process</a></li>
+                        <li><a href="#tab_slim_3">Cellular Component</a></li>
+                    </ul>
+             
+                    <div class="tab_container">                
+                        {% for go_type,go_type_output,mole_go_output in goslim_output %}
+                        <div id="tab_slim_{{ forloop.counter }}" class="tab_content">
+                            <!--<h5 id="loc_slim_{{go_type}}">GO Slim--{{go_type_output}} Result:</h5>-->
+                            <div>
+                                <table id="example_slim_{{go_type}}" class="display" >
+                                <thead>
+                                    <tr>
+                                        <th>Accession</th>
+                                        <th>GO Description</th>
+                                        <th>Protein Accession</th>                        
+                                        <th>Level</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for access,desp,gene,level in mole_go_output %}
+                                    <tr>
+                                        <td>{{access}}<a href="http://www.candidagenome.org/cgi-bin/GO/go.pl?goid={{access}}" target="_blank">&nbsp;(link)</a></td>
+                                        <td>{{desp}}</td>
+                                        <td>{{gene}}</td>
+                                        <td>{{level}}</td>
+                                    </tr>
+                                    {% endfor %}
+                                    
+                                </tbody>    
+                                </table>    
+                            </div>
+                            <br>
+                            <br> 
+                            <hr>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            {% endif %}
+            
+            
+            
+        </div>
+    </div>
+    <div class="pipeline_result" id="tree_result">
+        <div class="w3-main" style="margin-left:260px;margin-top:43px;">
+              <!-- Header -->
+              <header class="w3-container" style="padding-top:22px">
+                <h4><b><img src="{% static 'vertical-timeline/img/glyphicons-692-tree-structure.png' %}"> Phylogenetic Result</b></h4>
+              </header>
+
+              <div class="w3-panel w3-border" style="width:90%;">
+                <p>Tree description here</p>
+              </div>
+
+              <div class="w3-row-padding w3-margin-bottom">
+                <h5>Aligned Sequence (Input for RAxML):&nbsp;&nbsp;&nbsp;&nbsp;
+                <a class="w3-button w3-round-large w3-border" style="background-color:#d6efeb;font-size:16px" href="{% static ''%}{{task_id}}/tree/merged.nucl.fa" role="button">
+                    Download  <i class="fa fa-arrow-down"></i>
+                </a>
+                </h5>  
+                
+                <h5>Newick File:&nbsp;&nbsp;&nbsp;&nbsp;
+                <a class="w3-button w3-round-large w3-border" style="background-color:#d6efeb;font-size:16px" href="{% static ''%}{{task_id}}/tree/raxml/RAxML_bipartitions.phylogeny" role="button">
+                    Download  <i class="fa fa-arrow-down"></i>
+                </a>
+                </h5> 
+                
+                <br>
+                <br>
+                <table class="w3-table w3-striped w3-white" style="width:90%;">
+                      <tr>
+                        <td width="50%">Species</td>
+                        <td>Taxonomy ID</td>
+                        <td>NCBI Link</td>
+                      </tr>
+                    {% for species,tax_id in species_table %}
+                      <tr>
+                        <td width="50%">{{species}}</td>
+                        <td>{{tax_id}}</td>
+                        <td><a href="https://www.ncbi.nlm.nih.gov/Taxonomy/Browser/wwwtax.cgi?lvl=0&amp;id={{tax_id}}" target="_blank">link</a></td>
+                      </tr>
+                    {% endfor %}
+                </table>
+                
+                <br>
+                <br>
+                <img src="{{STATIC_URL}}{{task_id}}/tree/raxml/mytree.png" style="width: 500px; height: 80%;">
+              </div>
+        </div>
+    </div>
+    <!--system_info-->
+    <div class="pipeline_result" id="system_info">
+        <div class="w3-main" style="margin-left:260px;margin-top:43px;">
+          <!-- Header -->
+          <header class="w3-container" style="padding-top:22px">
+            <h4><b><img src="{% static 'vertical-timeline/img/glyphicons-320-sort.png' %}"> System Info</b></h4>
+          </header>
+
+          <div class="w3-row-padding w3-margin-bottom">
+             <div class="w3-panel w3-border" style="width:90%;">
+               <p>The page provides information about the MiDSystem version, lists of third-party tools, and databases that were executed in this task.</p>
+             </div>
+          </div>
+		  
+		  <div class="w3-row-padding w3-margin-bottom">
+			<h5>MiDSystem Version</h5>
+			<table class="w3-table w3-card-4 w3-bordered w3-bordered w3-border w3-hoverable w3-white">
+			  <tr>
+				<td>{{version}}</td>
+			  </tr>
+			</table><br>
+			
+			<h5>List of Third-party Tools</h5>
+			<table class="w3-table w3-card-4 w3-bordered w3-bordered w3-border w3-hoverable w3-white">
+			  <tr>
+				<th>Tool Name</th>
+				<th>Version</th>
+				<th>Executing Function</th>
+			  </tr>
+			  {% autoescape off %}
+			    {% for tool_name, tool_ver, tool_func, tool_url in tools_list %}
+			    <tr>
+				  <td><a href="{{tool_url}}" target="_blank">{{tool_name}}</a></td>
+				  <td>{{tool_ver}}</td>
+				  <td>{{tool_func}}</td>
+			    </tr>
+				{% endfor %}
+			  {% endautoescape %}
+			</table><br>
+			
+			<h5>List of Databases</h5>
+			<table class="w3-table w3-card-4 w3-bordered w3-bordered w3-border w3-hoverable w3-white">
+			  <tr>
+				<th>Database Name</th>
+				<th>Released Version/Date</th>
+			  </tr>
+			  {% autoescape off %}
+			    {% for db_name, db_ver, db_url in databases_list %}
+			    <tr>
+				  <td><a href="{{db_url}}" target="_blank">{{db_name}}</a></td>
+				  <td>{{db_ver}}</td>
+			    </tr>
+				{% endfor %}
+			  {% endautoescape %}
+			</table>
+		  </div>
+        </div>
+    <!-- End system_info page content --> 
+    </div>
+    
+    <div class="w3-main" style="margin-left:260px;margin-top:43px;">
+    <div class="w3-container w3-dark-grey w3-padding-32">
+        <div class="w3-row">
+          <p class="text-muted">
+                Developed by Bioinformatics and Biostatistics Core Lab, Center of Genomic Medicine, National Taiwan University.
+          </p>
+        </div>
+    </div>
+    </div>
+    
+        
+    
+{% else %}   
+    <div class="pipeline_result" id="failed_result">
+        <div class="w3-main" style="margin-left:260px;margin-top:43px;">
+          <header class="w3-container" style="padding-top:22px">
+            <h4><b><img src="{% static 'vertical-timeline/img/glyphicons-30-notes-2.png' %}"> Overview</b></h4>
+          </header>
+          
+          <div class="w3-row-padding w3-margin-bottom">
+             <div class="w3-panel w3-border" style="width:90%;">
+               <p>Job Failed!</p>
+               <p>The followings are details about your job, and the download link to all the completed logs/results.</p>
+             </div>
+          </div>
+          <div class="w3-row-padding w3-margin-bottom" style="float:center">
+            <h5>Information about your job:</h5>
+            <table class="w3-table w3-striped w3-white" style="width:90%;">
+                <tr>
+                    <td width="30%">Job ID</td>
+                    <td>{{task_id}}</td>
+                </tr>
+                <tr>
+                    <td>MiDSystem version</td>
+                    <td>{{version}}</td>
+                </tr>
+                <tr>
+                    <td>Submission time</td>
+                    <td>{{overview.submit_time}}</td>
+                </tr>
+                <tr>
+                    <td>Start time</td>
+                    <td>{{overview.start_time}}</td>
+                </tr>
+                <tr>
+                    <td>End time</td>
+                    <td>{{overview.end_time}}</td>
+                </tr>
+                <tr>
+                    <td>Failed Step</td>
+                    <td>{{failed_step}}</td>
+                </tr>
+                <tr>
+                    <td>Download Link</td>
+                    {% if total_file %}
+                        <td>                    
+                            <a class="w3-button w3-round-large w3-border w3-tiny" style="background-color:#d6efeb;font-size:16px" href="{% static ''%}{{task_id}}/myjob.tar.gz" role="button">
+                            Download  <i class="fa fa-arrow-down"></i>
+                            </a>
+                        </td>    
+                    {% else %}
+                        <td>Tar Failed</td>
+                    {% endif %}
+                </tr>
+            </table>
+          </div>
+
+        </div>
+    </div>
+
+    <div class="w3-main" style="margin-top:43px;">
+    <div class="w3-container w3-dark-grey w3-padding-32">
+        <div class="w3-row">
+          <p class="text-muted" style="margin-left:260px;">
+                Developed by Bioinformatics and Biostatistics Core Lab, Center of Genomic Medicine, National Taiwan University.
+          </p>
+        </div>
+    </div>
+    </div>
+{% endif %}
+<script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+<script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+<script src="https://cdn.datatables.net/1.10.16/js/jquery.dataTables.min.js"></script>
+<script type="text/javascript" language="javascript" src="//cdn.datatables.net/buttons/1.5.1/js/dataTables.buttons.min.js"></script>
+<script type="text/javascript" language="javascript" src="//cdn.datatables.net/select/1.1.0/js/dataTables.select.min.js"></script>
+<script src="//cdn.datatables.net/buttons/1.1.2/js/buttons.flash.min.js"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/jszip/3.1.3/jszip.min.js"></script>
+<script src="//cdn.datatables.net/buttons/1.5.1/js/buttons.html5.min.js"></script>
+<!--<script src="https://cdnjs.cloudflare.com/ajax/libs/numeric/1.2.6/numeric.min.js"></script>-->
+<script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+{% if success %}
+<script>
+$(document).ready(function () {
+    $("#summary_result").show();
+    /*
+    $('table[id="kegg_table"]').DataTable({
+        destroy: true,
+        dom: 'lfrtBip',
+        buttons: [
+            'csv'
+        ]
+    } );*/
+    var kegg_table = $('#kegg_table').DataTable({
+        "columnDefs": [
+            { "visible": false, "targets": 2 }
+        ],
+        dom: 'lfrtBip',
+        buttons: [
+            'csv'
+        ],
+        "order": [[ 2, 'asc' ]],
+        "displayLength": 25,
+        "drawCallback": function ( settings ) {
+            var api = this.api();
+            var rows = api.rows( {page:'current'} ).nodes();
+            var last=null;
+ 
+            api.column(2, {page:'current'} ).data().each( function ( group, i ) {
+                if ( last !== group ) {
+                    $(rows).eq( i ).before(
+                        '<tr class="group"><td colspan="5">'+group+'</td></tr>'
+                    );
+ 
+                    last = group;
+                }
+            } );
+        }
+    } );
+ 
+    // Order by the grouping
+    $('#kegg_table').on( 'click', 'tr.group', function () {
+        var currentOrder = kegg_table.order()[0];
+        if ( currentOrder[0] === 2 && currentOrder[1] === 'asc' ) {
+            kegg_table.order( [ 2, 'desc' ] ).draw();
+        }
+        else {
+            kegg_table.order( [ 2, 'asc' ] ).draw();
+        }
+    } );
+    var table = $('#example_molecular_function').DataTable({
+        "columnDefs": [
+            { "visible": false, "targets": 2 }
+        ],
+        dom: 'lfrtBip',
+        buttons: [
+            'csv'
+        ],
+        "order": [[ 2, 'asc' ]],
+        "displayLength": 25,
+        "drawCallback": function ( settings ) {
+            var api = this.api();
+            var rows = api.rows( {page:'current'} ).nodes();
+            var last=null;
+ 
+            api.column(2, {page:'current'} ).data().each( function ( group, i ) {
+                if ( last !== group ) {
+                    $(rows).eq( i ).before(
+                        '<tr class="group"><td colspan="5">'+group+'</td></tr>'
+                    );
+ 
+                    last = group;
+                }
+            } );
+        }
+    } );
+ 
+    // Order by the grouping
+    $('#example_molecular_function tbody').on( 'click', 'tr.group', function () {
+        var currentOrder = table.order()[0];
+        if ( currentOrder[0] === 2 && currentOrder[1] === 'asc' ) {
+            table.order( [ 2, 'desc' ] ).draw();
+        }
+        else {
+            table.order( [ 2, 'asc' ] ).draw();
+        }
+    } );
+    var table_bproc = $('#example_biological_process').DataTable({
+        "columnDefs": [
+            { "visible": false, "targets": 2 }
+        ],
+        dom: 'lfrtBip',
+        buttons: [
+            'csv'
+        ],
+        "order": [[ 2, 'asc' ]],
+        "displayLength": 25,
+        "drawCallback": function ( settings ) {
+            var api = this.api();
+            var rows = api.rows( {page:'current'} ).nodes();
+            var last=null;
+ 
+            api.column(2, {page:'current'} ).data().each( function ( group, i ) {
+                if ( last !== group ) {
+                    $(rows).eq( i ).before(
+                        '<tr class="group"><td colspan="5">'+group+'</td></tr>'
+                    );
+ 
+                    last = group;
+                }
+            } );
+        }
+    } );
+ 
+    // Order by the grouping
+    $('#example_biological_process tbody').on( 'click', 'tr.group', function () {
+        var currentOrder = table_bproc.order()[0];
+        if ( currentOrder[0] === 2 && currentOrder[1] === 'asc' ) {
+            table_bproc.order( [ 2, 'desc' ] ).draw();
+        }
+        else {
+            table_bproc.order( [ 2, 'asc' ] ).draw();
+        }
+    } );
+    var table_ccomp = $('#example_cellular_component').DataTable({
+        "columnDefs": [
+            { "visible": false, "targets": 2 }
+        ],
+        dom: 'lfrtBip',
+        buttons: [
+            'csv'
+        ],
+        "order": [[ 2, 'asc' ]],
+        "displayLength": 25,
+        "drawCallback": function ( settings ) {
+            var api = this.api();
+            var rows = api.rows( {page:'current'} ).nodes();
+            var last=null;
+ 
+            api.column(2, {page:'current'} ).data().each( function ( group, i ) {
+                if ( last !== group ) {
+                    $(rows).eq( i ).before(
+                        '<tr class="group"><td colspan="5">'+group+'</td></tr>'
+                    );
+ 
+                    last = group;
+                }
+            } );
+        }
+    } );
+ 
+    // Order by the grouping
+    $('#example_cellular_component tbody').on( 'click', 'tr.group', function () {
+        var currentOrder = table_ccomp.order()[0];
+        if ( currentOrder[0] === 2 && currentOrder[1] === 'asc' ) {
+            table_ccomp.order( [ 2, 'desc' ] ).draw();
+        }
+        else {
+            table_ccomp.order( [ 2, 'asc' ] ).draw();
+        }
+    } );
+    var slim_table = $('#example_slim_molecular_function').DataTable({
+        "columnDefs": [
+            { "visible": false, "targets": 2 }
+        ],
+        dom: 'lfrtBip',
+        buttons: [
+            'csv'
+        ],
+        "order": [[ 2, 'asc' ]],
+        "displayLength": 25,
+        "drawCallback": function ( settings ) {
+            var api = this.api();
+            var rows = api.rows( {page:'current'} ).nodes();
+            var last=null;
+ 
+            api.column(2, {page:'current'} ).data().each( function ( group, i ) {
+                if ( last !== group ) {
+                    $(rows).eq( i ).before(
+                        '<tr class="group"><td colspan="5">'+group+'</td></tr>'
+                    );
+ 
+                    last = group;
+                }
+            } );
+        }
+    } );
+ 
+    // Order by the grouping
+    $('#example_slim_molecular_function tbody').on( 'click', 'tr.group', function () {
+        var currentOrder = slim_table.order()[0];
+        if ( currentOrder[0] === 2 && currentOrder[1] === 'asc' ) {
+            slim_table.order( [ 2, 'desc' ] ).draw();
+        }
+        else {
+            slim_table.order( [ 2, 'asc' ] ).draw();
+        }
+    } );
+    var slim_table_bproc = $('#example_slim_biological_process').DataTable({
+        "columnDefs": [
+            { "visible": false, "targets": 2 }
+        ],
+        dom: 'lfrtBip',
+        buttons: [
+            'csv'
+        ],
+        "order": [[ 2, 'asc' ]],
+        "displayLength": 25,
+        "drawCallback": function ( settings ) {
+            var api = this.api();
+            var rows = api.rows( {page:'current'} ).nodes();
+            var last=null;
+ 
+            api.column(2, {page:'current'} ).data().each( function ( group, i ) {
+                if ( last !== group ) {
+                    $(rows).eq( i ).before(
+                        '<tr class="group"><td colspan="5">'+group+'</td></tr>'
+                    );
+ 
+                    last = group;
+                }
+            } );
+        }
+    } );
+ 
+    // Order by the grouping
+    $('#example_slim_biological_process tbody').on( 'click', 'tr.group', function () {
+        var currentOrder = slim_table_bproc.order()[0];
+        if ( currentOrder[0] === 2 && currentOrder[1] === 'asc' ) {
+            slim_table_bproc.order( [ 2, 'desc' ] ).draw();
+        }
+        else {
+            slim_table_bproc.order( [ 2, 'asc' ] ).draw();
+        }
+    } );
+    var slim_table_ccomp = $('#example_slim_cellular_component').DataTable({
+        "columnDefs": [
+            { "visible": false, "targets": 2 }
+        ],
+        dom: 'lfrtBip',
+        buttons: [
+            'csv'
+        ],
+        "order": [[ 2, 'asc' ]],
+        "displayLength": 25,
+        "drawCallback": function ( settings ) {
+            var api = this.api();
+            var rows = api.rows( {page:'current'} ).nodes();
+            var last=null;
+ 
+            api.column(2, {page:'current'} ).data().each( function ( group, i ) {
+                if ( last !== group ) {
+                    $(rows).eq( i ).before(
+                        '<tr class="group"><td colspan="5">'+group+'</td></tr>'
+                    );
+ 
+                    last = group;
+                }
+            } );
+        }
+    } );
+ 
+    // Order by the grouping
+    $('#example_slim_cellular_component tbody').on( 'click', 'tr.group', function () {
+        var currentOrder = slim_table_ccomp.order()[0];
+        if ( currentOrder[0] === 2 && currentOrder[1] === 'asc' ) {
+            slim_table_ccomp.order( [ 2, 'desc' ] ).draw();
+        }
+        else {
+            slim_table_ccomp.order( [ 2, 'asc' ] ).draw();
+        }
+    } );
+
+});
+// Get the Sidebar
+var mySidebar = document.getElementById("mySidebar");
+
+// Get the DIV with overlay effect
+var overlayBg = document.getElementById("myOverlay");
+// show result based on nav bar
+function loading(clicked_name)
+{
+    $(".pipeline_result").hide();
+    $("#"+clicked_name).show();
+    
+}
+// Toggle between showing and hiding the sidebar, and add overlay effect
+function w3_open() {
+    if (mySidebar.style.display === 'block') {
+        mySidebar.style.display = 'none';
+        overlayBg.style.display = "none";
+    } else {
+        mySidebar.style.display = 'block';
+        overlayBg.style.display = "block";
+    }
+}
+
+// Close the sidebar with the close button
+function w3_close() {
+    mySidebar.style.display = "none";
+    overlayBg.style.display = "none";
+}
+</script>
+<script>
+var func_trace1 = {
+  y: {{go_plot.molecular_function.0}},
+  x: {{go_plot.molecular_function.1}},
+  text: {{go_plot.molecular_function.2}},
+  type: 'bar',
+  name: 'Molecular Function',
+  orientation:'h',
+  
+};
+
+var func_trace2 = {
+  y: {{go_plot.biological_process.0}},
+  x: {{go_plot.biological_process.1}},
+  text: {{go_plot.biological_process.2}},
+  type: 'bar',
+  name: 'Biological Process',
+  orientation:'h',
+  
+};
+
+var func_trace3 = {
+  y: {{go_plot.cellular_component.0}},
+  x: {{go_plot.cellular_component.1}},
+  text: {{go_plot.cellular_component.2}},
+  type: 'bar',
+  name: 'Cellular Component',
+  orientation:'h',
+ 
+};
+
+var func_data = [func_trace1, func_trace3, func_trace2];
+
+var func_layout = {
+  height: 650,
+  font:{
+    size:8,
+  },
+  legend:{
+    traceorder:'reversed',
+  },
+  hovermode: 'closest',
+  hoverlabel: {
+    namelength: 0,
+  },
+  title: 'GO Term Frequency',
+  xaxis: {
+    tickangle: -45
+  },
+
+};
+
+Plotly.newPlot('pathway_bar', func_data, func_layout);
+</script>
+<script>
+//for busco contig
+var trace1 = {
+  y: [{{busco_contig_single}}],
+  name: 'single-copy(S)',
+  type: 'bar'
+};
+var trace2 = {
+  y: [{{busco_contig_duplicate}}],
+  name: 'duplicated(D)',
+  type: 'bar'
+};
+
+var data = [trace1, trace2];
+var layout = {
+  xaxis:{showticklabels: false},
+  yaxis: {title: 'Percentage'},
+  barmode: 'relative',
+  title: 'Complete BUSCOs (C)'
+};
+
+Plotly.newPlot('myDiv', data, layout);
+</script>
+<script>
+//for gene prediction busco
+var pred_trace1 = {
+  y: [{{busco_pred_single}}],
+  name: 'single-copy(S)',
+  type: 'bar'
+};
+var pred_trace2 = {
+  y: [{{busco_pred_duplicate}}],
+  name: 'duplicated(D)',
+  type: 'bar'
+};
+
+var pred_data = [pred_trace1, pred_trace2];
+var pred_layout = {
+  xaxis:{showticklabels: false},
+  yaxis: {title: 'Percentage'},
+  barmode: 'relative',
+  title: 'Complete BUSCOs (C)'
+};
+
+Plotly.newPlot('pred_myDiv', pred_data, pred_layout);
+</script>
+<script>
+var blast = {
+  x: ['>=95', '>=90', '>=80', '>=70','>=60','>=50'],
+  y: {{coverage_perc}},
+  mode: 'lines+markers',
+  line:{
+    color:'rgb(164, 194, 244)'
+  },
+  marker:{
+    color:'rgb(164, 194, 244)'
+  },
+  name:'percentage'
+};
+var raw_blast= {
+  x: ['>=95', '>=90', '>=80', '>=70','>=60','>=50'],
+  y: {{coverage}},
+  mode: 'lines+markers',
+  line:{
+    color:'rgb(234, 153, 153)'
+  },
+  marker:{
+    color:'rgb(234, 153, 153)'
+  },
+  xaxis: 'x2',
+  yaxis: 'y2',
+  name:'raw number'
+};
+var blast_data = [ blast ,raw_blast];
+
+var blast_layout = {
+  title:'Coverage',
+  xaxis: {
+    title: 'Coverage(%)',
+    showgrid: false,
+    zeroline: false,
+    domain: [0, 0.45]
+  },
+  yaxis: {
+    title: 'Percentage (%) ',
+    showline: false
+  },
+  yaxis2: {
+    anchor: 'x2',
+    title: 'Gene Number ',
+    showline: false
+  },
+  xaxis2: {
+    title: 'Coverage(%)',
+    showgrid: false,
+    zeroline: false,
+    domain: [0.55, 1]
+  }
+};
+
+Plotly.newPlot('blastDiv', blast_data, blast_layout);
+//Plotly.newPlot('raw_blastDiv', raw_blast_data, raw_blast_layout);
+
+</script>
+<script type="text/javascript">
+ google.charts.load("current", {packages:["corechart"]});
+      google.charts.setOnLoadCallback(drawChart);
+      function drawChart() {
+        var data = google.visualization.arrayToDataTable({{trimmomatic_result}});
+
+        var options = {
+          title: 'Trimommatic Result',
+          is3D: true,
+          chartArea:{width:'50%',height:'75%'}
+        };
+
+		if(data.getNumberOfRows()>0){
+			var chart = new google.visualization.PieChart(document.getElementById('piechart_3d'));
+			chart.draw(data, options);
+		}
+		
+        var bowtie_data = google.visualization.arrayToDataTable({{bowtie_result}});
+
+        var bowtie_options = {
+          title: 'Bowtie2 Result (Reads={{bowtie_total_reads}})',
+          is3D: true,
+          chartArea:{width:'50%',height:'75%'}
+        };
+
+		if(bowtie_data.getNumberOfRows()>0){
+			var bowtie_chart = new google.visualization.PieChart(document.getElementById('bowtie_piechart_3d'));
+			bowtie_chart.draw(bowtie_data, bowtie_options);
+		}
+        
+        var busco_contig_data=google.visualization.arrayToDataTable({{busco_contig_result}});
+        
+		var busco_contig_options = {
+          title: 'BUSCOs (N:{{busco_contig_n}})',
+          is3D: true,
+          chartArea:{width:'50%',height:'75%'},
+        };
+        var busco_pred_data=google.visualization.arrayToDataTable({{busco_pred_result}});
+        
+		var busco_pred_options = {
+          title: 'BUSCOs (N:{{busco_pred_n}})',
+          is3D: true,
+          chartArea:{width:'50%',height:'75%'},
+        };
+
+        var busco_contig_chart = new google.visualization.PieChart(document.getElementById('busco_contig_piechart'));
+        var busco_pred_chart = new google.visualization.PieChart(document.getElementById('busco_pred_piechart'));
+        busco_contig_chart.draw(busco_contig_data, busco_contig_options);
+        busco_pred_chart.draw(busco_pred_data, busco_pred_options);
+        
+        
+        $(".pipeline_result").hide();
+        $("#summary_result").show();
+        $("#myDiv").hide();
+        $("#pred_myDiv").hide();
+        google.visualization.events.addListener(busco_contig_chart, 'onmouseover', selectHandler);
+        google.visualization.events.addListener(busco_pred_chart, 'onmouseover', pred_selectHandler);        
+        function selectHandler(e) {
+            var topping = busco_contig_data.getValue(e.row, 0);
+            if(topping=="Complete(C)")
+            {
+                $("#myDiv").show();
+            }
+            else
+            {
+                $("#myDiv").hide();
+            }
+        };
+        function pred_selectHandler(e) {
+            var topping = busco_pred_data.getValue(e.row, 0);
+            if(topping=="Complete(C)")
+            {
+                $("#pred_myDiv").show();
+            }
+            else
+            {
+                $("#pred_myDiv").hide();
+            }
+        };
+        
+        
+      } 
+/*$('piechart_3d').load(function(){
+    chart.draw(data, options);
+});    */
+</script>
+<script>
+// When the user scrolls down 20px from the top of the document, show the button
+window.onscroll = function() {scrollFunction()};
+
+function scrollFunction() {
+    if (document.body.scrollTop > 20 || document.documentElement.scrollTop > 20) {
+        document.getElementById("myBtn").style.display = "block";
+    } else {
+        document.getElementById("myBtn").style.display = "none";
+    }
+}
+
+// When the user clicks on the button, scroll to the top of the document
+function topFunction() {
+    document.body.scrollTop = 0;
+    document.documentElement.scrollTop = 0;
+}
+//datatable tab
+$(function(){
+	// 預設顯示第一個 Tab
+	var _showTab = 0;
+	$('.abgne_tab').each(function(){
+		// 目前的頁籤區塊
+		var $tab = $(this);
+ 
+		var $defaultLi = $('ul.tabs li', $tab).eq(_showTab).addClass('active');
+		$($defaultLi.find('a').attr('href')).siblings().hide();
+ 
+		// 當 li 頁籤被點擊時...
+		// 若要改成滑鼠移到 li 頁籤就切換時, 把 click 改成 mouseover
+		$('ul.tabs li', $tab).click(function() {
+			// 找出 li 中的超連結 href(#id)
+			var $this = $(this),
+				_clickTab = $this.find('a').attr('href');
+			// 把目前點擊到的 li 頁籤加上 .active
+			// 並把兄弟元素中有 .active 的都移除 class
+			$this.addClass('active').siblings('.active').removeClass('active');
+			// 淡入相對應的內容並隱藏兄弟元素
+			$(_clickTab).stop(false, true).fadeIn().siblings().hide();
+ 
+			return false;
+		}).find('a').focus(function(){
+			this.blur();
+		});
+	});
+});
+</script>
+{% endif %}
+</body>
+</html>
+    
+    

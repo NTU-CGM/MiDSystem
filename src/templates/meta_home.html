@@ -126,7 +126,7 @@
         </thead>
         <tbody>
               <tr>
-                <td>Output File format</td>
+                <td>output file format</td>
                 <td style="width: 60%">
                     <div class="checkbox">
                       <label><input name="file_type" type="checkbox" value="png" checked disabled />png</label>
@@ -199,7 +199,7 @@
         </thead>
         <tbody>
           <tr>
-            <td>Insert size (-X)<br />(range:250~800)</td>
+            <td>insert size (-X)<br />(range:250~800)</td>
             <td>
                 <div class="form-group">
                     <input type="number" name="bowtie_insert_size" class="form-control" value="800" step="10" min="250" max="800"/>
@@ -207,7 +207,7 @@
             </td>
           </tr>
           <tr>
-            <td>Mismatch (-v)<br />(type: Integer)</td>
+            <td>mismatch (-v)<br />(type: Integer)</td>
             <td>
                 <div class="form-group">
                     <input type="number" name="bowtie_mismatch" class="form-control" value="3" step="1" min="0" max="35"/>
@@ -222,7 +222,7 @@
     <div class="panel-heading">Step 6. Domain Mapping</div>
     <div class="panel-body">
     In this step, we provide domain information and sequence for cd-hit clustered genes that are predicted but not annotated.<br />
-    Domain information is provided through Pfam and HMMER (hmmscan.)<br />
+    Domain information is provided through Pfam and HMMER (hmmscan).<br />
     <label class="radio-inline">
         <input type="radio" name="non_annotate_setting" id="non_annotate_default" value="default" checked />Default Settings
     </label>
@@ -252,8 +252,26 @@
     </div>
   </div>
   
-<button class="btn btn-default" type="submit" id="submit">Submit</button>
-</div>
+  <div class="panel panel-info">
+    <div class="panel-heading">Step 7. Privacy Statement</div>
+    <div class="panel-body">
+	MiDSystem NEVER collects and shares users' upload data and results with others. All data and metadata of one task will be removed automatically from the server without any copies after <b>7 days</b> of the report generated.
+	<p></p>
+	<input class="form-check-input" type="checkbox" name="accept_privacy_statement" id="accept_privacy_statement" value="accept" />
+	<label class="form-check-label" for="accept_privacy_statement">I have read the Privacy Statement of MiDSystem and accept MiDSystem to process my upload data.</label>
+    </div>
+  </div>
+
+  <div id="submission_panel">
+  <div class="panel panel-success">
+    <div class="panel-heading">Step 8. Data submission</div>
+    <div class="panel-body">
+	  <button class="btn btn-default btn-success" type="submit" id="submit">Submit</button>
+    </div>
+  </div>
+  </div>
+
+  </div>
 </div>
 </form>
 {% endblock content %}

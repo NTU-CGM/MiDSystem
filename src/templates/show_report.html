@@ -105,7 +105,7 @@ div.tab_container .tab_content h2 {
 </style>
 
 <!-- Top container -->
-<div class="w3-bar w3-top w3-large" style="z-index:4;background-color:#cceaed">
+<div class="w3-bar w3-top w3-large" style="z-index:4;background-color:#fedfe1">
   <button class="w3-bar-item w3-button w3-hide-large w3-hover-none w3-hover-text-light-grey" onclick="w3_open();"><i class="fa fa-bars"></i>  Menu</button>
   {% if REF %}
   <span class="w3-bar-item w3-left">Reference-Guided Assembly</span>
@@ -127,13 +127,14 @@ div.tab_container .tab_content h2 {
         <a href="#" class="w3-bar-item w3-button w3-padding" onclick="loading(this.name)" name="qc_result"><img src="{% static 'vertical-timeline/img/glyphicons-28-search.png' %}" height="14" width="15">  Quality Control</a>
         <a href="#" class="w3-bar-item w3-button w3-padding" onclick="loading(this.name)" name="a5_result"><img src="{% static 'vertical-timeline/img/glyphicons-111-align-left.png' %}" height="14" width="15">  <i>De Novo</i> Assembly</a>
         {% if REF %}
-            <a href="#" class="w3-bar-item w3-button w3-padding" onclick="loading(this.name)" name="ref_result"><img src="{% static 'vertical-timeline/img/glyphicons-320-sort.png' %}" height="14" width="15">  Reference-Guided Assembly</a>
+            <a href="#" class="w3-bar-item w3-button w3-padding" onclick="loading(this.name)" name="ref_result"><img src="{% static 'vertical-timeline/img/glyphicons-114-justify.png' %}" height="14" width="15">  Reference-Guided Assembly</a>
         {% endif %}
         <a href="#" class="w3-bar-item w3-button w3-padding" onclick="loading(this.name)" name="pred_result"><img src="{% static 'vertical-timeline/img/glyphicons-489-multiple-displays.png' %}" height="14" width="15">  Gene Prediction</a>
         <a href="#" class="w3-bar-item w3-button w3-padding" onclick="loading(this.name)" name="function_result"><img src="{% static 'vertical-timeline/img/glyphicons-530-list-alt.png' %}" height="14" width="15">  GO Term Annotation</a>
         {% if TREE %}
-        <a href="#" class="w3-bar-item w3-button w3-padding" onclick="loading(this.name)" name="tree_result"><img src="{% static 'vertical-timeline/img/glyphicons-692-tree-structure.png' %}" height="14" width="15">  Tree</a><br><br>
+        <a href="#" class="w3-bar-item w3-button w3-padding" onclick="loading(this.name)" name="tree_result"><img src="{% static 'vertical-timeline/img/glyphicons-692-tree-structure.png' %}" height="14" width="15">  Tree</a>
         {% endif %}
+		<a href="#" class="w3-bar-item w3-button w3-padding" onclick="loading(this.name)" name="system_info"><img src="{% static 'vertical-timeline/img/glyphicons-320-sort.png' %}" height="14" width="15">  System Info</a>
       </div>
     </nav>
 
@@ -160,6 +161,10 @@ div.tab_container .tab_content h2 {
                 <tr>
                     <td width="30%">Job ID</td>
                     <td>{{task_id}}</td>
+                </tr>
+                <tr>
+                    <td>MiDSystem version</td>
+                    <td>{{version}}</td>
                 </tr>
                 <tr>
                     <td>Submission time</td>
@@ -374,7 +379,7 @@ div.tab_container .tab_content h2 {
         <div class="w3-main" style="margin-left:260px;margin-top:43px;">
               <!-- Header -->
               <header class="w3-container" style="padding-top:22px">
-                <h4><b><img src="{% static 'vertical-timeline/img/glyphicons-320-sort.png' %}"> Reference-Guided Assembly Result</b></h4>
+                <h4><b><img src="{% static 'vertical-timeline/img/glyphicons-114-justify.png' %}"> Reference-Guided Assembly Result</b></h4>
               </header>
 
               <div class="w3-panel w3-border" style="width:90%;">
@@ -780,7 +785,66 @@ div.tab_container .tab_content h2 {
               </div>
         </div>
     </div>
-    
+    <!--system_info-->
+    <div class="pipeline_result" id="system_info">
+        <div class="w3-main" style="margin-left:260px;margin-top:43px;">
+          <!-- Header -->
+          <header class="w3-container" style="padding-top:22px">
+            <h4><b><img src="{% static 'vertical-timeline/img/glyphicons-320-sort.png' %}"> System Info</b></h4>
+          </header>
+
+          <div class="w3-row-padding w3-margin-bottom">
+             <div class="w3-panel w3-border" style="width:90%;">
+               <p>The page provides information about the MiDSystem version, lists of third-party tools, and databases that were executed in this task.</p>
+             </div>
+          </div>
+		  
+		  <div class="w3-row-padding w3-margin-bottom">
+			<h5>MiDSystem Version</h5>
+			<table class="w3-table w3-card-4 w3-bordered w3-bordered w3-border w3-hoverable w3-white">
+			  <tr>
+				<td>{{version}}</td>
+			  </tr>
+			</table><br>
+			
+			<h5>List of Third-party Tools</h5>
+			<table class="w3-table w3-card-4 w3-bordered w3-bordered w3-border w3-hoverable w3-white">
+			  <tr>
+				<th>Tool Name</th>
+				<th>Version</th>
+				<th>Executing Function</th>
+			  </tr>
+			  {% autoescape off %}
+			    {% for tool_name, tool_ver, tool_func, tool_url in tools_list %}
+			    <tr>
+				  <td><a href="{{tool_url}}" target="_blank">{{tool_name}}</a></td>
+				  <td>{{tool_ver}}</td>
+				  <td>{{tool_func}}</td>
+			    </tr>
+				{% endfor %}
+			  {% endautoescape %}
+			</table><br>
+			
+			<h5>List of Databases</h5>
+			<table class="w3-table w3-card-4 w3-bordered w3-bordered w3-border w3-hoverable w3-white">
+			  <tr>
+				<th>Database Name</th>
+				<th>Released Version/Date</th>
+			  </tr>
+			  {% autoescape off %}
+			    {% for db_name, db_ver, db_url in databases_list %}
+			    <tr>
+				  <td><a href="{{db_url}}" target="_blank">{{db_name}}</a></td>
+				  <td>{{db_ver}}</td>
+			    </tr>
+				{% endfor %}
+			  {% endautoescape %}
+			</table>
+		  </div>
+        </div>
+    <!-- End system_info page content --> 
+    </div>
+	
     <div class="w3-main" style="margin-left:260px;margin-top:43px;">
     <div class="w3-container w3-dark-grey w3-padding-32">
         <div class="w3-row">
@@ -812,6 +876,10 @@ div.tab_container .tab_content h2 {
                 <tr>
                     <td width="30%">Job ID</td>
                     <td>{{task_id}}</td>
+                </tr>
+                <tr>
+                    <td>MiDSystem version</td>
+                    <td>{{version}}</td>
                 </tr>
                 <tr>
                     <td>Submission time</td>

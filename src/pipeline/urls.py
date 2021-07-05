@@ -1,9 +1,10 @@
 from django.conf.urls import include, url
-from .views import home,reference_guided,non_ref,non_ref_result,ref_result,status,retrieve,report,test,data_upload,delete_upload,get_tree,confirm_urls,help
+from .views import home,reference_guided,non_ref,non_ref_result,ref_result,status,retrieve,report,test,data_upload,delete_upload,get_tree,confirm_urls,help,about
 
 urlpatterns=[
     url(r'^$',home,name='home'),   
     url(r'^help$',help,name='help'),       
+    url(r'^about$',about,name='about'),       
     url(r'^(?P<task_id>[0-9a-zA-Z\-]{36})/retrieve$',retrieve,name='retrieve'),
     url(r'^get_tree$',get_tree,name='get_tree'),
     url(r'^(?P<task_id>[0-9a-zA-Z\-]{36})/test$',test,name='test'),

@@ -57,6 +57,7 @@ THIRD_PARTY_APPS = (
 LOCAL_APPS = (
     'pipeline',
     'metag_pipeline',
+    'long_read_pipeline',
 )
 
 INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS
@@ -190,3 +191,7 @@ OUTPUT_BASE_DIR = join('/', 'data')
 CONDA_APP_BIN = join(expanduser('~'), 'miniconda3', 'envs', 'ngs', 'bin')
 NON_CONDA_APP_BIN = join('/', 'usr', 'local', 'NGSTools')
 SUPPLEMENT_APP_BIN = join(BASE_DIR, 'supplement_code')
+UPDATES_LIST = join(BASE_DIR, 'updates.tsv')
+TOOLS_LIST = join(BASE_DIR, 'tools.tsv')
+DATABASES_LIST = join(BASE_DIR, 'databases.tsv')
+VERSION = '20210610'

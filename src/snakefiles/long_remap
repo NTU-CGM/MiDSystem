@@ -1,0 +1,16 @@
+if HYBRID == '1':
+    rule remap:
+        input:
+            user_root+"unicycler/assembly.fasta"
+        output:
+            user_root+"bowtie2/contig/remapping.bam"
+        shell:
+            "mkdir "+user_root+"unicycler/bowtie2_idx;"
+            "cd "+user_root+"unicycler/bowtie2_idx;"
+            "bowtie2-build --threads 22 {input} assembly.fasta;"
+            "cd ../..;"
+            "mkdir -p bowtie2/contig;"
+            "cd bowtie2/contig;"
+            "bowtie2 -p 22"+no_unal+" -x ../../unicycler/bowtie2_idx/assembly.fasta -1 ../../trimmomatic/R1.trimmed.fastq -2 ../../trimmomatic/R2.trimmed.fastq 1> bowtie2.sam 2> bowtie2.log;"
+            "samtools view -S -b bowtie2.sam > remapping.bam;"
+            "rm -f bowtie2.sam;"

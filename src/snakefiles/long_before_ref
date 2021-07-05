@@ -1,0 +1,48 @@
+include: 'snake_based_paths'
+
+#start 
+from signal import signal, SIGPIPE, SIG_DFL
+signal(SIGPIPE, SIG_DFL)
+
+if HYBRID=='1':
+    short_read_path='-1 '+user_root+'trimmomatic/R1.trimmed.fastq -2 '+user_root+'trimmomatic/R2.trimmed.fastq '
+else:
+    short_read_path=''
+
+rule all:
+    input:      
+        user_root+"unicycler/assembly.fasta",
+        user_root+"quast/contig/report.pdf",
+        user_root+"busco/contig/run_unicycler/short_summary_unicycler.txt"
+
+#unicycler
+rule unicycler:
+    input:
+        user_root+"longqc/long_trimmed.fastq"
+    output:
+        user_root+"unicycler/assembly.fasta"
+    shell:
+        "unicycler --pilon_path {NON_CONDA_APP_BIN}pilon-1.24.jar --spades_path {NON_CONDA_APP_BIN}SPAdes-3.13.0-Linux/bin/spades.py --racon_path {NON_CONDA_APP_BIN}racon-1.4.21/bin/racon --mode "+unicycler_mode+" -t 22 -l {input} "+short_read_path+"-o "+user_root+"unicycler;"
+        "sed -i -r 's/^>([0-9]+) (length=[0-9]+) (depth=.+)$/>contig_\\1\\.\\2\\.\\3/' {output};"
+        
+rule quast:
+    input:
+        user_root+"unicycler/assembly.fasta"
+    output:
+        user_root+"quast/contig/report.pdf"
+    shell:
+        "source activate ngs_p2;"
+        "quast -o "+user_root+"quast/contig -m "+m_value+" --contig-thresholds "+contig_thresholds+" -t 22 {input} 1> "+user_root+"/quast/quast.stdout.log 2>"+user_root+"/quast/quast.stderr.log;"
+        "source activate ngs;"
+        
+rule busco:
+    input:
+        user_root+"unicycler/assembly.fasta"
+    params:
+        busco_ref=BUSCO_DB+"bacteria_odb9"
+    output:
+        user_root+"busco/contig/run_unicycler/short_summary_unicycler.txt"
+    shell:
+        "cd "+user_root+"busco/contig;"
+        "busco -i {input} -l {params.busco_ref} -o unicycler -e "+e_value+" -sp "+busco_species+" -m genome -c 4 -f 1> busco.stdout.log 2> busco.stderr.log;"
+        "busco_plot -wd run_unicycler 1> busco_plot.stdout.log 2> busco_plot.stderr.log;"

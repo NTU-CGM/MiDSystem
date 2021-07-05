@@ -15,7 +15,7 @@ rule gene_pred_cluster:
         "sed -i '/^[[:space:]]*$/d' user.nul.fasta;"
         "sed -i '/^[[:space:]]*$/d' user.protein.fasta;"
         "cd "+user_root+"cdhit;"
-        "cd-hit -i ../metagenemark/user.protein.fasta -o genecatalog -c "+cdhit_thresh+" -sc 1 -n 5 -M 16000 -d 0 -T 8"
+        "cd-hit -i ../metagenemark/user.protein.fasta -o genecatalog -c "+cdhit_thresh+" -sc 1 -n 5 -M 16000 -d 0 -T 22"
     
     
     

@@ -4,13 +4,13 @@
 {% load static %}
 
 <h2>Help</h2>
-<div class="panel panel-warning">
+<div class="panel panel-success">
   <div class="panel-heading">
-    <h3 class="panel-title">Quick Start</h3>
+    <h3 class="panel-title">Tutorial</h3>
   </div>
   <div class="panel-body">
-      <p>For detail information and usage of MiDSystem</p>
-      <p><a class="btn btn-warning" href="{% static 'MiDSystem_quick_start.pdf' %}" target="_blank" role="button">View</a></p>
+      <p>Click the "View" button below to download the MiDSystem tutorial for important information and step-by-step instructions to analyze your data.</p>
+      <p><a class="btn btn-success" href="{% static 'MiDSystem_Tutorial.pdf' %}" target="_blank" role="button">View</a></p>
   </div>
 </div>
 <div class="panel panel-info">
@@ -21,37 +21,69 @@
       <table class="table table-striped table-condensed">
         <thead>
           <tr>
-            <th>Functions</th>
-            <th>Example Links</th>
+            <th>Function</th>
+            <th>Example Link</th>
           </tr>
         </thead>
         <tbody>
           <tr>
-            <td>Reference-Guided Assembly (<i>E. coli</i>; SRR394603)</td>
-            <td><a class="btn btn-info" href="/be35e082-3bd7-11e9-9363-d89d67f39fa9/report" target="_blank" role="button">View</a></td>
+            <td>Reference-Guided Assembly (<i>E. coli</i> EC4437; SRR394603)</td>
+            <td><a class="btn btn-info" href="/f0ebbbda-67d4-11ea-94c9-246e9604e11c/report" target="_blank" role="button">View</a></td>
           </tr>
           <tr>
-            <td>Non-Refernce Assembly (<i>E. coli</i>; SRR394603)</td>
-            <td><a class="btn btn-info" href="/0436de14-7762-11e8-b3cc-d89d67f39fa9/report" target="_blank" role="button">View</a></td>
+            <td>Non-Refernce Assembly (<i>E. coli</i> EC4437; SRR394603)</td>
+            <td><a class="btn btn-info" href="/0642d23e-66a4-11ea-89c0-246e9604e11c/report" target="_blank" role="button">View</a></td>
+          </tr>
+          <tr>
+            <td>Long-Read Assembly (<i>E. coli</i> MG1655; SRR1284073)</td>
+            <td><a class="btn btn-info" href="/long_read/d6c11d2a-cc2f-11eb-b60b-246e9604e11c/report" target="_blank" role="button">View</a></td>
+          </tr>
+          <tr>
+            <td>Hybrid Assembly (<i>E. coli</i> MG1655; ERR3813596 and ERR008613)</td>
+            <td><a class="btn btn-info" href="/long_read/054d6f1c-cb0f-11eb-823d-246e9604e11c/report" target="_blank" role="button">View</a></td>
           </tr>
           <tr>
             <td>Metagenomics Analysis (TAT1; SRR3961740)</td>
-            <td><a class="btn btn-info" href="/meta/2bb4fdd2-739c-11e8-9dd6-d89d67f39fa9/report" target="_blank" role="button">View</a></td>
+            <td><a class="btn btn-info" href="/meta/c0ddb842-638a-11ea-a4ad-246e9604e11c/report" target="_blank" role="button">View</a></td>
           </tr>
           <tr>
             <td>Metagenomics Analysis (TAT2; SRR3961741)</td>
-            <td><a class="btn btn-info" href="/meta/e9823752-7366-11e8-aedf-d89d67f39fa9/report" target="_blank" role="button">View</a></td>
+            <td><a class="btn btn-info" href="/meta/3c406d5c-63dd-11ea-a4ad-246e9604e11c/report" target="_blank" role="button">View</a></td>
           </tr>
           <tr>
             <td>Metagenomics Analysis (TAT3; SRR3961742)</td>
-            <td><a class="btn btn-info" href="/meta/687b64ee-7424-11e8-9c98-d89d67f39fa9/report" target="_blank" role="button">View</a></td>
+            <td><a class="btn btn-info" href="/meta/f1259360-6445-11ea-a4ad-246e9604e11c/report" target="_blank" role="button">View</a></td>
           </tr>
           <tr>
             <td>Metagenomics Analysis (TAT4; SRR3961743)</td>
-            <td><a class="btn btn-info" href="/meta/ae2651c6-742d-11e8-8b3d-d89d67f39fa9/report" target="_blank" role="button">View</a></td>
+            <td><a class="btn btn-info" href="/meta/b4321c7c-64c6-11ea-a4ad-246e9604e11c/report" target="_blank" role="button">View</a></td>
           </tr>
         </tbody>
      </table>
   </div>
 </div>
+<div class="panel panel-warning">
+  <div class="panel-heading">
+    <h3 class="panel-title">Contact Information</h3>
+  </div>
+  <div class="panel-body">
+      <p>If you have any questions about MiDSystem, please feel free to contact us by the email below.</p>
+      <p><a class="btn btn-warning" id="contact_email" href="#" role="button">Email</a></p>
+  </div>
+</div>
+
+<script>
+function htmlDecode(input){
+  var e = document.createElement('textarea');
+  e.innerHTML = input;
+  // handle case of empty input
+  return e.childNodes.length === 0 ? "" : e.childNodes[0].nodeValue;
+}
+
+window.onload = function(){
+	encoded_mail_address = "&#100;&#48;&#48;&#57;&#52;&#53;&#48;&#48;&#54;&#64;&#110;&#116;&#117;&#46;&#101;&#100;&#117;&#46;&#116;&#119;";
+	document.getElementById("contact_email").href = "mailto:"+htmlDecode(encoded_mail_address);
+};
+</script>
+
 {% endblock content %}

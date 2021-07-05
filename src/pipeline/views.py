@@ -6,27 +6,23 @@ from django.utils.html import mark_safe
 from django.core.mail import send_mail
 from django.conf import settings
 from .models import User_Job,ip_log,bac_species
-from metag_pipeline.models import meta_User_Job
+# from metag_pipeline.models import meta_User_Job
 import uuid
-import numpy as np
-import pandas as pd
 import os
 import shutil
 import json
 import pickle
 from pathlib import Path
 from ipware.ip import get_real_ip
-import subprocess as sp
 from django_q.tasks import async, result,async_chain,Chain
 import datetime
 from geolite2 import geolite2
 import re
 import gzip
-import ast
-from collections import Counter
 from .googledrive_downloader import GoogleDriveDownloader
 import requests, requests_ftp
 from tempfile import gettempdir
+import pandas as pd
 
 reader = geolite2.reader()
 web_url=settings.WEB_URL
@@ -36,8 +32,8 @@ error_map={
 "QC":"Quality Control",
 "A5":"De Novo Assembly",
 "RAG":"Reference-Guided Assembly",
-"AUG":"Prediction",
-"GM":"Prediction",
+"AUG":"Gene Prediction",
+"GM":"Gene Prediction",
 "GO":"Functional Annotation",
 "TREE":"Phylogenetic Tree",
 "PARSER":"Parsing Result",
@@ -52,12 +48,15 @@ def data_upload(request):
         if upload_id == '':
             return render(request,'not_allow.html',{'msg':'No upload id.'})
         upload_path = str(Path(UPLOAD_BASE_PATH).resolve().joinpath(upload_id))
+        new_file_name = 'undefined_format'
         if 'uploadfile_type1' in request.POST:
             new_file_name = request.POST.get('uploadfile_type1')+'.fastq'
         elif 'uploadfile_type2' in request.POST:
             new_file_name = request.POST.get('uploadfile_type2')+'.fastq'
-        else:
+        elif 'uploadfile_ref' in request.POST:
             new_file_name = 'reference.fa'
+        elif 'uploadfile_long' in request.POST:
+            new_file_name = 'long.fastq'
         
         try:
             if not os.path.exists(upload_path):
@@ -85,12 +84,15 @@ def delete_upload(request):
         if upload_id == '':
             return render(request,'not_allow.html',{'msg':'No upload id.'})
         upload_path = str(Path(UPLOAD_BASE_PATH).resolve().joinpath(upload_id))
+        new_file_name = 'undefined_format'
         if 'uploadfile_type1' in request.POST:
             new_file_name = request.POST.get('uploadfile_type1')+'.fastq'
         elif 'uploadfile_type2' in request.POST:
             new_file_name = request.POST.get('uploadfile_type2')+'.fastq'
-        else:
+        elif 'uploadfile_ref' in request.POST:
             new_file_name = 'reference.fa'
+        elif 'uploadfile_long' in request.POST:
+            new_file_name = 'long.fastq'
         
         upload_raw_file = upload_path+'/'+new_file_name
         try:
@@ -103,13 +105,14 @@ def delete_upload(request):
 
 def confirm_urls(request):
     if request.method == 'POST':
-        confirm_result = {'R1': False, 'R2':False, 'Rf': False, 'R1_err':'', 'R2_err':'', 'Rf_err':''}
+        confirm_result = {'R1': False, 'R2':False, 'Rf': False, 'Lr': False, 'R1_err':'', 'R2_err':'', 'Rf_err':'', 'Lr_err':''}
         for key, val in request.POST.items():
             is_status_ok = False
             is_format_ok = False
             
             if key[:3] == 'url': # e.g., key = url_R1
-                m1 = re.search('google\.com.+id=(.+)\&*', val)
+                # m1 = re.search('google\.com.+id=(.+)\&*', val) ## Retired
+                m1 = re.search('google\.com\/file\/d\/(.+)\/', val)
                 if m1:
                     # use GoogleDriveDownloader module
                     id = m1.group(1)
@@ -140,7 +143,7 @@ def confirm_urls(request):
                         else:
                             is_format_ok = False
                             confirm_result[key[-2:]+'_err'] = 'Unkown File Format'
-                    else: #R1/R2
+                    else: #R1/R2/Lr
                         if re.search('\.f(ast)*q(\.gz)*$', file_name):
                             is_format_ok = True
                         else:
@@ -157,18 +160,33 @@ def test(request,task_id):
     return render_to_response('test.html',locals())
     
 def home(request):
-    print("IP Address for debug-toolbar: " + request.META['REMOTE_ADDR'])
-    job_numbers=User_Job.objects.filter(total_status__in=['WAITING','RUNNING']).count()
-    meta_job_number=meta_User_Job.objects.filter(total_status__in=['WAITING','RUNNING']).count()
-    return render_to_response('home.html',locals())
+    # print("IP Address for debug-toolbar: " + request.META['REMOTE_ADDR'])
+    # job_numbers=User_Job.objects.filter(total_status__in=['WAITING','RUNNING']).count()
+    # meta_job_number=meta_User_Job.objects.filter(total_status__in=['WAITING','RUNNING']).count()
+    return render_to_response('home.html',{})
 
 def help(request):
-    status_dict={'test':'This is test.'}
-    #return HttpResponse(json.dumps(status_dict))
-    return render_to_response('help.html',locals())    
+    return render_to_response('help.html',{})    
     
+def about(request):
+    #load lists of updates, tools and databases
+    updates_list = pd.read_csv(settings.UPDATES_LIST, sep="\t", engine='python').values.tolist()
+    
+    tools_df = pd.read_csv(settings.TOOLS_LIST, sep="\t", engine='python')
+    tools_df = tools_df[tools_df.columns[:4]]
+    tools_list = tools_df.values.tolist()
+    
+    databases_df = pd.read_csv(settings.DATABASES_LIST, sep="\t", engine='python')
+    databases_df = databases_df[databases_df.columns[:3]]
+    databases_list = databases_df.values.tolist()
+    
+    return render(request,'about.html', 
+                  {'updates_list': updates_list,
+                   'tools_list': tools_list,
+                   'databases_list': databases_list})
+
+
 def report(request,task_id="not_passed"):
-    
     summary={}
     if(list(User_Job.objects.filter(user_id=task_id))==[]):
         return render(request,'no_id_match.html',{'task_id':task_id})
@@ -189,7 +207,11 @@ def report(request,task_id="not_passed"):
         REF=0
     if(task.tree_status=="SKIPPED"):
         TREE=0
-    print(task.tree_status)
+    
+    # read the MiDSystem version number
+    with open(DATA+'/'+task_id+'/MiDSystem.version') as fp:
+        version = fp.read().strip()
+    
     if(task.total_status=="FAILED"):
         success=0
         failed_step=error_map[task.error_log]
@@ -206,10 +228,17 @@ def report(request,task_id="not_passed"):
                      'failed_step':failed_step,
                      'overview':overview,
                      'total_file':total_file,
+                     'version':version,
                     })
     elif(task.total_status=="WAITING" or task.total_status=="RUNNING"):
         return render(request,'status.html',{})
     
+    # get system info tables
+    tools_df = pd.read_csv(DATA+'/'+task_id+'/tools_list.tsv', sep="\t", engine='python')
+    tools_list = tools_df[tools_df.columns[:4]].values.tolist()
+    
+    databases_df = pd.read_csv(DATA+'/'+task_id+'/databases_list.tsv', sep="\t", engine='python')
+    databases_list = databases_df[databases_df.columns[:3]].values.tolist()
 
     basic_dic={'REF':REF,
                'TREE':TREE,
@@ -217,6 +246,9 @@ def report(request,task_id="not_passed"):
                'task_id':task_id,
                'overview':overview,
                'total_file':total_file,
+               'version':version,
+               'tools_list':tools_list,
+               'databases_list':databases_list,
               }
     with open(DATA+'/'+task_id+'/output_dict', 'rb') as fp:
         out_dic=pickle.load(fp)
@@ -234,7 +266,6 @@ def reference_guided(request):
     return render(request,'reference_guided.html',{'real':real})
 
 def status(request,task_id="not_passed"):
-        
     status_dict={}
     if(list(User_Job.objects.filter(user_id=task_id))==[]):
         print("I am in status")
@@ -243,7 +274,6 @@ def status(request,task_id="not_passed"):
     return render(request,'status.html',status_dict)
 
 def retrieve(request,task_id="not_passed"):
-        
     if(list(User_Job.objects.filter(user_id=task_id))==[]):
         return render(request,'no_id_match.html',{'task_id':task_id})
     else:
@@ -348,12 +378,12 @@ def ref_result(request):
         try:
             e_value=str(request.POST['a5_e_value'])
         except:
-            msg="BUSCO e value cannot be empty"
+            msg="BUSCO e-value cannot be empty"
             return render(request,'not_allow.html',{'uid':uid,'msg':msg})
         if(re.match('[+\-]?(?:0|[1-9]\d*)(?:\.\d*)?(?:[eE][+\-]?\d+)?',e_value)):
             parameters['de_novo']['a5_e_value']=e_value
         else:
-            msg="BUSCO e value pattern not matched."
+            msg="BUSCO e-value pattern not matched."
             return render(request,'not_allow.html',{'uid':uid,'msg':msg})
             
         parameters['de_novo']['m_value']=new_contig.split(",")[0]
@@ -397,12 +427,12 @@ def ref_result(request):
         try:
             e_value=str(request.POST['ref_e_value'])
         except:
-            msg="BUSCO e value cannot be empty"
+            msg="BUSCO e-value cannot be empty"
             return render(request,'not_allow.html',{'uid':uid,'msg':msg})
         if(re.match('[+\-]?(?:0|[1-9]\d*)(?:\.\d*)?(?:[eE][+\-]?\d+)?',e_value)):
             parameters['ref']['ref_e_value']=e_value
         else:
-            msg="BUSCO e value pattern not matched."
+            msg="BUSCO e-value pattern not matched."
             return render(request,'not_allow.html',{'uid':uid,'msg':msg})
         
         if(request.POST['no_unal']=="Yes"):
@@ -438,23 +468,23 @@ def ref_result(request):
         try:
             e_value=str(request.POST['pred_assm_e_value'])
         except:
-            msg="BUSCO e value cannot be empty"
+            msg="BUSCO e-value cannot be empty"
             return render(request,'not_allow.html',{'uid':uid,'msg':msg})
         if(re.match('[+\-]?(?:0|[1-9]\d*)(?:\.\d*)?(?:[eE][+\-]?\d+)?',e_value)):
             parameters['gene_assm']['pred_assm_e_value']=e_value
         else:
-            msg="BUSCO e value pattern not matched."
+            msg="BUSCO e-value pattern not matched."
             return render(request,'not_allow.html',{'uid':uid,'msg':msg})
     
         try:
             e_value=str(request.POST['blast_e_value'])
         except:
-            msg="BLAST e value cannot be empty"
+            msg="BLAST e-value cannot be empty"
             return render(request,'not_allow.html',{'uid':uid,'msg':msg})
         if(re.match('[+\-]?(?:0|[1-9]\d*)(?:\.\d*)?(?:[eE][+\-]?\d+)?',e_value)):
             parameters['gene_assm']['blast_e_value']=e_value
         else:
-            msg="BLAST e value pattern not matched."
+            msg="BLAST e-value pattern not matched."
             return render(request,'not_allow.html',{'uid':uid,'msg':msg})
     
         parameters['gene_assm']['pred_assm_busco_species']=str(request.POST['pred_assm_busco_species'])

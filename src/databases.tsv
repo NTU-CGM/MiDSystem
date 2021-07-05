@@ -1,0 +1,7 @@
+Database Name	Released Version/Date	URL	ref_gm_tree	ref_gm	ref_aug_tree	ref_aug	non-ref_gm_tree	non-ref_gm	non-ref_aug_tree	non-ref_aug	long_gm_tree	long_gm	long_aug_tree	long_aug	hybrid_gm_tree	hybrid_gm	hybrid_aug_tree	hybrid_aug	meta	meta_kraken
+BUSCO bacteria odb9	v2	https://busco-archive.ezlab.org/v2/	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1	0	0
+eggNOG	v4.5.1	http://eggnog45.embl.de/	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	1	1
+Ensembl bacteria database	Release 32	ftp://ftp.ensemblgenomes.org/pub/release-32/bacteria	1	0	1	0	1	0	1	0	1	0	1	0	1	0	1	0	0	0
+InterPro	v64.0	http://ftp.ebi.ac.uk/pub/databases/interpro/64.0/	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1	0	0
+Pfam	v31	http://ftp.ebi.ac.uk/pub/databases/Pfam/releases/Pfam31.0/	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	1	1
+RefSeq non-redundant proteins	03/13/2018	https://ftp.ncbi.nlm.nih.gov/blast/db/	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1	0	0
