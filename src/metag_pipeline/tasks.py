@@ -77,7 +77,8 @@ def run_data_preparation(source_path, destination_path, dict_urls,kraken_usage):
         
         if len(dict_urls): # data come from URLs
             for new_file_name, url in dict_urls.items():
-                m1 = re.search('google\.com.+id=(.+)\&*', url)
+                # m1 = re.search('google\.com.+id=(.+)\&*', url) ## Retired
+                m1 = re.search('google\.com\/file\/d\/(.+)\/', url)
                 if m1:
                     # Use GoogleDriveDownloader module
                     id = m1.group(1)
