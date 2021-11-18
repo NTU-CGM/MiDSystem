@@ -61,14 +61,14 @@ def failed_email(data_path):
     [mail], fail_silently=True)
     return 0
 
-def run_data_preparation(source_path, destination_path, dict_urls,kraken_usage):
+def run_data_preparation(source_path, destination_path, dict_urls, kraken_usage):
     try:
         if not path.exists(destination_path):
             makedirs(destination_path)
-        if(kraken_usage=='no'):
-            dest_raw_path = str(Path(destination_path).resolve().joinpath('raw'))
-        else:
+        if(kraken_usage):
             dest_raw_path = str(Path(destination_path).resolve().joinpath('kraken'))
+        else:
+            dest_raw_path = str(Path(destination_path).resolve().joinpath('raw'))
         
         if not path.exists(dest_raw_path):
             makedirs(dest_raw_path)
@@ -256,8 +256,26 @@ def run_domain(data_path):
     
     return 0
 
-def run_meta_parser(data_path):
+def run_meta_parser(data_path, KRAKEN):
     try:
+        #kraken parser
+        kraken_total_read = '0'
+        kraken_contaminated_read = '0'
+        kraken_uncontaminated_read = '0'
+        if KRAKEN:
+            kraken_tmp_list = [0 for i in range(3)]
+            line_counter = 0
+            with open(data_path+"/kraken/kraken.summary", "r") as fp:
+                for line in fp:
+                    m1 = re.search(r'^ *(\d+) sequence', line)
+                    if m1:
+                        kraken_tmp_list[line_counter] = int(m1.group(1))
+                    line_counter += 1
+            
+            kraken_total_read = str(kraken_tmp_list[0])
+            kraken_contaminated_read = "%d (%.4f%%)" % (kraken_tmp_list[1], kraken_tmp_list[1]/kraken_tmp_list[0]*100)
+            kraken_uncontaminated_read = "%d (%.4f%%)" % (kraken_tmp_list[2], kraken_tmp_list[2]/kraken_tmp_list[0]*100)
+        
         #trimmomatic parser
         file = open(data_path+"/trimmomatic/trimmomatic.log","r")
         temp=file.read()
@@ -269,7 +287,7 @@ def run_meta_parser(data_path):
         result.append(["status","reads number"])
         for i in range(1,len(numbers)):
             result.append([output_string[i],numbers[i]])
-        
+        file.close()
         
         #a5 parser
         a5_result_pair=[]
@@ -342,6 +360,7 @@ def run_meta_parser(data_path):
         #domain mapping parser
         file=open(data_path+'/pfam/pfam_result.txt')
         temp=file.read()
+        file.close()
         temp=temp.split('\n')[3:]
         temp=temp[:len(temp)-11]
         domain_table=[]
@@ -490,17 +509,18 @@ def run_meta_parser(data_path):
         sp.run("cd "+data_path+"/eggnog;tar zcvf "+data_path+"/user_eggnog_result.tar.gz parsed_eggnog_abundance.csv GO_term_annotation.txt *_go_zscore.csv",shell=True)
         
         
-        output_dictionary={
-                             'result':mark_safe(json.dumps(result)),
-                             'a5_result_pair':a5_result_pair,
-                             'taxo_output':taxo_output,
-                             'taxo_plot':taxo_plot,
-                             'gene_pred_table':gene_pred_table,
-                             'abundance_table':abundance_table[:200],
-                             'domain_plot':domain_plot,
-                             'out_domain_table':out_domain_table,
-                             'go_plot':go_plot,
-        }
+        output_dictionary={'kraken_total_read':kraken_total_read,
+                           'kraken_contaminated_read':kraken_contaminated_read,
+                           'kraken_uncontaminated_read':kraken_uncontaminated_read,
+                           'result':mark_safe(json.dumps(result)),
+                           'a5_result_pair':a5_result_pair,
+                           'taxo_output':taxo_output,
+                           'taxo_plot':taxo_plot,
+                           'gene_pred_table':gene_pred_table,
+                           'abundance_table':abundance_table[:200],
+                           'domain_plot':domain_plot,
+                           'out_domain_table':out_domain_table,
+                           'go_plot':go_plot}
         
         with open(data_path+'/output_dict', 'wb') as fp:
             pickle.dump(output_dictionary, fp)
@@ -540,9 +560,15 @@ def run_meta_pipeline(sfile_path,uid,data_path,parameters):
         if not path.exists(data_path):
             makedirs(data_path)
         
+        if parameters['kraken'] == 'yes':
+            KRAKEN=1
+        else:
+            KRAKEN=0
+        
         # get lists of tools and databases that are conducted in this task
         selected_col_name = 'meta'
-        if(parameters['kraken']=='yes'): selected_col_name += '_kraken'
+        if KRAKEN:
+            selected_col_name += '_kraken'
         
         tmp_df = pd.read_csv(settings.TOOLS_LIST, sep="\t", engine='python')
         tools_df = tmp_df.loc[tmp_df[selected_col_name]==1][tmp_df.columns[:4]]
@@ -560,7 +586,7 @@ def run_meta_pipeline(sfile_path,uid,data_path,parameters):
         user.save(update_fields=['data_preparation_status'])
         
         data_tmp_path = str(Path(UPLOAD_BASE_PATH).resolve().joinpath(parameters['upload_id']))
-        data_preparation_stat = run_data_preparation(data_tmp_path, data_path, parameters['dict_urls'],parameters['kraken'])
+        data_preparation_stat = run_data_preparation(data_tmp_path, data_path, parameters['dict_urls'],KRAKEN)
         if(data_preparation_stat!=0):
             print("pipeline stop at data preparation")
             user.error_log="DATA"
@@ -579,7 +605,7 @@ def run_meta_pipeline(sfile_path,uid,data_path,parameters):
         user.quality_check="RUNNING"
         user.save(update_fields=['quality_check'])
         
-        if(parameters['kraken']=='yes'):
+        if KRAKEN:
             copy_snake(sfile_path+"/snake_kraken",data_path+"/snake_kraken",data_path,0,{})
             makedirs(str(Path(data_path).resolve().joinpath('raw')))
             kraken_status=run_kraken(data_path)
@@ -715,7 +741,7 @@ def run_meta_pipeline(sfile_path,uid,data_path,parameters):
         #start parsing result
         user.parsing_status="RUNNING"
         user.save(update_fields=['parsing_status'])
-        parser_stat=run_meta_parser(data_path)
+        parser_stat=run_meta_parser(data_path, KRAKEN)
         if(parser_stat!=0):
             print("pipeline stop at Parser!!!!!")
             failed_tar_result(data_path)            

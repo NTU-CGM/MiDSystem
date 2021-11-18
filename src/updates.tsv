@@ -1,4 +1,5 @@
 Version	Description
+20211118	Fix task fail in the QC step of metagenomics analysis while the Kraken function is disable.
 20210822	Fix download issue from Google drive in the metagenomic analysis. Add citation information on the home page.
 20210610	Add Long-Read and Hybrid Assembly functions. Add System Info in reports.
 20200310	Public release
